@@ -1,7 +1,7 @@
 {
   "name": "krill",
   "version": "0.0.1",
-  "description": "microservice template",
+  "description": "microservice framework",
   "main": "dist/index.js",
   "scripts": {
     "clean": "rm -rf dist/",
@@ -12,17 +12,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Proto-Garage/krill.git"
+    "url": "git@github.com:kugtong33/krill.git"
   },
   "keywords": [
     "microservice"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Arjay Sitoy <sitoy.arjay@gmail.com>",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Proto-Garage/krill/issues"
+    "url": "https://github.com/kugtong33/krill/issues"
   },
-  "homepage": "https://github.com/Proto-Garage/krill#readme",
+  "homepage": "https://github.com/kugtong33/krill#krilljs",
   "dependencies": {
     "ajv": "^4.11.3",
     "amqplib": "^0.5.1",
