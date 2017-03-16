@@ -1,0 +1,63 @@
+{
+  "name": "krill",
+  "version": "0.0.1",
+  "description": "microservice template",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "rm -rf dist/",
+    "build": "npm run clean && babel --out-dir dist/ src/",
+    "lint": "eslint src/",
+    "test": "npm run lint && npm run build && mocha dist/test",
+    "install": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Proto-Garage/krill.git"
+  },
+  "keywords": [
+    "microservice"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Proto-Garage/krill/issues"
+  },
+  "homepage": "https://github.com/Proto-Garage/krill#readme",
+  "dependencies": {
+    "ajv": "^4.11.3",
+    "amqplib": "^0.5.1",
+    "babel-polyfill": "^6.23.0",
+    "bluebird": "^3.4.7",
+    "couchbase": "^2.3.0",
+    "debug": "^2.6.1",
+    "koa": "^2.0.0",
+    "koa-bodyparser": "^3.2.0",
+    "koa-compose": "^3.2.1",
+    "koa-logger": "^2.0.1",
+    "koa-router": "^7.0.1",
+    "lodash": "^4.17.4",
+    "redis": "^2.6.5",
+    "sendgrid": "^4.7.1",
+    "uuid": "^3.0.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-core": "^6.23.1",
+    "babel-eslint": "^7.1.1",
+    "babel-plugin-transform-builtin-extend": "^1.1.2",
+    "babel-preset-env": "^1.1.8",
+    "cz-conventional-changelog": "^1.2.0",
+    "eslint": "^3.14.1",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-babel": "^4.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.9.0",
+    "mocha": "^3.2.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

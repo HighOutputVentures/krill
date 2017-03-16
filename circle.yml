@@ -1,0 +1,5 @@
+machine:
+  timezone:
+    Etc/UTC
+  node:
+    version: 6.9.5
