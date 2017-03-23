@@ -1,15 +1,18 @@
 /* globals Adapter */
-import { RedisClient } from 'redis';
+import redis from 'redis';
 import Promise from 'bluebird';
 
 const adapter = {};
 
 adapter.start = async () => {
-  Promise.promisifyAll(RedisClient.prototype);
-  Adapter.Redis = new RedisClient({
+  const client = redis.createClient({
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,
   });
+
+  Promise.promisifyAll(client.prototype);
+
+  Adapter.Redis = client;
 };
 
 adapter.stop = async () => { Adapter.Redis.quit(); };

@@ -22,7 +22,7 @@ adapter.start = async () => {
 
   /* load koa modules */
   app.use(logger());
-  app.use(parser());
+  app.use(parser({ extendTypes: { json: ['application/vnd.api+json'] } }));
 
   /* load middlewares */
   _.each(middlewares, middleware => app.use(middleware));
