@@ -8,6 +8,7 @@ import parser from 'koa-bodyparser';
 import path from 'path';
 import logger from 'koa-logger';
 
+const { KOA_PORT } = process.env;
 const adapter = {};
 const app = new Koa();
 const router = new Router();
@@ -60,7 +61,7 @@ adapter.start = async () => {
   app.use(router.routes());
   app.use(router.allowedMethods());
 
-  try { server = app.listen(process.env.KOA_PORT); } catch (err) { throw err; }
+  try { server = app.listen(KOA_PORT); } catch (err) { throw err; }
 };
 
 adapter.stop = async () => {

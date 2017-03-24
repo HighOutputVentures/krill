@@ -78,8 +78,9 @@ class RabbitMQ {
 }
 
 adapter.start = async () => {
+  const { RABBIT_HOST, RABBIT_VHOST, RABBIT_USER, RABBIT_PASSWORD } = process.env;
   const routes = Routes.filter(route => route.type === 'amqp');
-  const rabbit = await amqp.connect(`amqp://${process.env.RABBIT_HOST}`);
+  const rabbit = await amqp.connect(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
   const channel = await rabbit.createChannel();
 
   Adapter.RabbitMQ = new RabbitMQ(rabbit, channel);

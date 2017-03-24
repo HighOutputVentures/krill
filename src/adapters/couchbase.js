@@ -218,14 +218,22 @@ class Couchbase {
 }
 
 adapter.start = async () => {
+  const {
+    COUCHBASE_CLUSTER_HOST,
+    COUCHBASE_CLUSTER_PORT,
+    COUCHBASE_CLUSTER_USER,
+    COUCHBASE_CLUSTER_PASSWORD,
+    COUCHBASE_BUCKET_NAME,
+  } = process.env;
+
   const cluster = new Couchbase({
-    host: process.env.COUCHBASE_CLUSTER_HOST,
-    port: process.env.COUCHBASE_CLUSTER_PORT,
-    user: process.env.COUCHBASE_CLUSTER_USER,
-    password: process.env.COUCHBASE_CLUSTER_PASSWORD,
+    host: COUCHBASE_CLUSTER_HOST,
+    port: COUCHBASE_CLUSTER_PORT,
+    user: COUCHBASE_CLUSTER_USER,
+    password: COUCHBASE_CLUSTER_PASSWORD,
   });
 
-  Adapter.Couchbase = cluster.openBucket(process.env.COUCHBASE_BUCKET_NAME);
+  Adapter.Couchbase = cluster.openBucket(COUCHBASE_BUCKET_NAME);
 };
 
 adapter.stop = async () => {

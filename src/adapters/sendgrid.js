@@ -2,12 +2,13 @@
 import sendgrid from 'sendgrid';
 import debug from 'debug';
 
+const { SENDGRID_KEY } = process.env;
 const adapter = {};
 const logger = debug('sendgrid');
 
 class Mailer {
   constructor() {
-    this.mailer = sendgrid(process.env.SENDGRID_KEY);
+    this.mailer = sendgrid(SENDGRID_KEY);
   }
 
   /**

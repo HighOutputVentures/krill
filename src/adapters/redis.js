@@ -5,10 +5,8 @@ import Promise from 'bluebird';
 const adapter = {};
 
 adapter.start = async () => {
-  const client = redis.createClient({
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-  });
+  const { REDIS_HOST, REDIS_PORT } = process.env;
+  const client = redis.createClient({ host: REDIS_HOST, port: REDIS_PORT });
 
   Promise.promisifyAll(client.prototype);
 
