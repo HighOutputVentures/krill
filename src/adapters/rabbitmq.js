@@ -78,23 +78,25 @@ class RabbitMQ {
 }
 
 adapter.start = async () => {
-  const { RABBIT_HOST, RABBIT_VHOST, RABBIT_USER, RABBIT_PASSWORD } = process.env;
-  const routes = Routes.filter(route => route.type === 'amqp');
-  const rabbit = await amqp.connect(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
-  const channel = await rabbit.createChannel();
+  try {
+    const { RABBIT_HOST, RABBIT_VHOST, RABBIT_USER, RABBIT_PASSWORD } = process.env;
+    const routes = Routes.filter(route => route.type === 'amqp');
+    const rabbit = await amqp.connect(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
+    const channel = await rabbit.createChannel();
 
-  Adapter.RabbitMQ = new RabbitMQ(rabbit, channel);
+    Adapter.RabbitMQ = new RabbitMQ(rabbit, channel);
 
-  await Promise.all(_.map(routes, async (route) => {
-    const resource = _.get(Resources, route.resource);
+    await Promise.all(_.map(routes, async (route) => {
+      const resource = _.get(Resources, route.resource);
 
-    if (!resource) {
-      logger(`${route.resource} not found`);
-      throw new Error('Resource not found');
-    }
+      if (!resource) {
+        logger(`${route.resource} not found`);
+        throw new Error('Resource not found');
+      }
 
-    await Adapter.RabbitMQ.subscribe(route.api, resource);
-  }));
+      await Adapter.RabbitMQ.subscribe(route.api, resource);
+    }));
+  } catch (err) { logger(err); throw err; }
 };
 
 adapter.stop = async () => { Adapter.RabbitMQ.close(); };
