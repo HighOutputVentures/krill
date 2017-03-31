@@ -1,6 +1,6 @@
 {
   "name": "krilljs",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "microservice framework",
   "main": "dist/index.js",
   "scripts": {
