@@ -6,8 +6,6 @@ import path from 'path';
 import Promise from 'bluebird';
 import Ajv from 'ajv';
 
-const bootloaders = require(path.join(process.cwd(), 'config/bootloaders')).default;
-const adapters = require(path.join(process.cwd(), 'config/adapters')).default;
 const service = {};
 
 global.Util = {};
@@ -36,6 +34,9 @@ Util.validate = (schema, json) => {
 };
 
 service.start = async () => {
+  const bootloaders = require(path.join(process.cwd(), 'config/bootloaders')).default;
+  const adapters = require(path.join(process.cwd(), 'config/adapters')).default;
+
   /* load bootloaders */
   _.each(bootloaders, bootloader => bootloader());
 
@@ -47,6 +48,8 @@ service.start = async () => {
 };
 
 service.stop = async () => {
+  const adapters = require(path.join(process.cwd(), 'config/adapters')).default;
+
   await Promise.all(_.map(adapters, async (adapter) => {
     await Module[adapter].stop();
   }));
