@@ -12,14 +12,14 @@ const { KOA_PORT } = process.env;
 const adapter = {};
 const app = new Koa();
 const router = new Router();
-const middlewares = require(path.resolve(process.cwd(), 'config/middlewares')).default;
-const policies = require(path.resolve(process.cwd(), 'config/policies')).default;
+const middlewares = require(path.join(process.cwd(), 'config/middlewares')).default;
+const policies = require(path.join(process.cwd(), 'config/policies')).default;
 
 let server;
 
 adapter.start = async () => {
   /* require policies */
-  Util.require(path.resolve(process.cwd(), 'policies'), 'Policies');
+  Util.require(path.join(process.cwd(), 'policies'), 'Policies');
 
   /* load koa modules */
   app.use(logger());

@@ -6,8 +6,8 @@ import path from 'path';
 import Promise from 'bluebird';
 import Ajv from 'ajv';
 
-const bootloaders = require(path.resolve(process.cwd(), 'config/bootloaders')).default;
-const adapters = require(path.resolve(process.cwd(), 'config/adapters')).default;
+const bootloaders = require(path.join(process.cwd(), 'config/bootloaders')).default;
+const adapters = require(path.join(process.cwd(), 'config/adapters')).default;
 const service = {};
 
 global.Util = {};
@@ -15,10 +15,10 @@ global.Adapter = {};
 global.Module = {};
 
 Util.require = (dir, namespace) => {
-  const files = fs.existsSync(path.resolve(process.cwd(), dir)) ?
-    fs.readdirSync(path.resolve(process.cwd(), dir)) : [];
+  const files = fs.existsSync(path.join(process.cwd(), dir)) ?
+    fs.readdirSync(path.join(process.cwd(), dir)) : [];
   _.each(files, (file) => {
-    const module = require(path.resolve(process.cwd(), dir, file));
+    const module = require(path.join(process.cwd(), dir, file));
     if (namespace) {
       global[namespace] = _.merge(global[namespace] || {}, module);
     } else {
@@ -30,7 +30,7 @@ Util.require = (dir, namespace) => {
 Util.validate = (schema, json) => {
   const ajv = new Ajv();
   const valid = ajv.validate(
-    require(path.resolve(process.cwd(), 'schema', schema)).default, json,
+    require(path.join(process.cwd(), 'schema', schema)).default, json,
   );
   if (!valid) throw new Error('invalid_resource').stack = ajv.errors;
 };
