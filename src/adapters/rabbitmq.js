@@ -71,6 +71,8 @@ class RabbitMQ {
       }, { noAck: true });
     });
 
+    if (response.code === 'invalid_request') throw new Error(response.message);
+
     return response;
   }
 
