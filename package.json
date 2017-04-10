@@ -27,7 +27,7 @@
     "amqplib": "^0.5.1",
     "babel-polyfill": "^6.23.0",
     "bluebird": "^3.4.7",
-    "couchbase": "^2.3.0",
+    "couchbase": "^2.3.2",
     "debug": "^2.6.1",
     "koa": "^2.2.0",
     "koa-bodyparser": "^3.2.0",
