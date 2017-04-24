@@ -14,13 +14,10 @@ class RabbitMQ {
    * Rabbit application constructor
    * @param {object} channel
    */
-  constructor(rabbit, channel) {
-    /* exchange types: default(direct), fanout, topic, headers */
+  constructor(connection, channel) {
     this.channel = channel;
-    this.exchange = 'default';
+    this.connection = connection;
 
-    this.rabbit = rabbit;
-    this.channel.assertExchange(this.exchange, 'direct', { durable: true });
     this.channel.prefetch(1);
   }
 
@@ -30,9 +27,8 @@ class RabbitMQ {
    * @param {function} event
    */
   async subscribe(route, event) {
-    const queue = await this.channel.assertQueue('', { durable: true, exclusive: false });
-    this.channel.bindQueue(queue.queue, this.exchange, route);
-    this.channel.consume(queue.queue, async (request) => {
+    await this.channel.assertQueue(route, { durable: true, exclusive: false });
+    this.channel.consume(route, async (request) => {
       let buffer;
 
       try {
@@ -58,8 +54,10 @@ class RabbitMQ {
     const id = uuid.v4();
     const callback = await this.channel.assertQueue('', { exclusive: true });
 
-    this.channel.publish(
-      this.exchange, route, new Buffer(JSON.stringify({ body: request })),
+    await this.channel.assertQueue(route, { durable: true });
+    this.channel.sendToQueue(
+      route,
+      new Buffer(JSON.stringify({ body: request })),
       { correlationId: id, replyTo: callback.queue },
     );
 
@@ -76,7 +74,7 @@ class RabbitMQ {
     return response;
   }
 
-  close() { this.rabbit.close(); }
+  close() { this.connection.close(); }
 }
 
 adapter.start = async () => {
