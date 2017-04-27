@@ -6,7 +6,7 @@ import debug from 'debug';
 
 const logger = debug('rabbitmq');
 
-class RabbitMQ {
+export class RabbitMQ {
 
   /**
    * Rabbit application constructor
@@ -49,6 +49,7 @@ class RabbitMQ {
   }
 
   async publish(route, request) {
+    const timeout = setTimeout(() => { throw new Error('request_timeout'); }, 5000);
     const id = uuid.v4();
     const callback = await this.channel.assertQueue('', { exclusive: true });
 
@@ -66,6 +67,8 @@ class RabbitMQ {
         }
       }, { noAck: true });
     });
+
+    clearTimeout(timeout);
 
     if (response.code === 'invalid_request') throw new Error(response.message);
 
