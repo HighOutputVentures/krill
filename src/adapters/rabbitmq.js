@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import uuid from 'uuid';
 import Promise from 'bluebird';
 import amqp from 'amqplib';
@@ -6,7 +7,7 @@ import debug from 'debug';
 
 const logger = debug('rabbitmq');
 
-export class RabbitMQ {
+export class RabbitMQ extends EventEmitter {
 
   /**
    * Rabbit application constructor
@@ -15,8 +16,6 @@ export class RabbitMQ {
   constructor(connection, channel) {
     this.channel = channel;
     this.connection = connection;
-
-    this.channel.prefetch(1);
   }
 
   /**
@@ -26,6 +25,9 @@ export class RabbitMQ {
    */
   async subscribe(route, event) {
     await this.channel.assertQueue(route, { durable: true, exclusive: false });
+
+    this.channel.prefetch(1);
+
     this.channel.consume(route, async (request) => {
       let buffer;
 
@@ -48,8 +50,8 @@ export class RabbitMQ {
     });
   }
 
-  async publish(route, request) {
-    const timeout = setTimeout(() => { throw new Error('request_timeout'); }, 5000);
+  async publish(route, request, time) {
+    const timeout = setTimeout(() => { throw new Error('request_timeout'); }, time || 5000);
     const id = uuid.v4();
     const callback = await this.channel.assertQueue('', { exclusive: true });
 
