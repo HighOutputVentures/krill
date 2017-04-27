@@ -1,5 +1,18 @@
 machine:
+  pre:
+    - echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
+    - echo 'deb https://packages.erlang-solutions.com/ubuntu trusty contrib' | sudo tee /etc/apt/sources.list.d/erlang-solutions.list
+    - echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+    - wget -O- https://www.rabbitmq.com/rabbitmq-release-signing-key.asc | sudo apt-key add -
+    - wget -O- https://packages.erlang-solutions.com/ubuntu/erlang_solutions.asc | sudo apt-key add -
+    - curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+    - sudo apt-get update && sudo apt-get install erlang rabbitmq-server yarn -y
+    - sudo rabbitmqctl start_app
   timezone:
     Etc/UTC
   node:
     version: 6.9.5
+test:
+  override:
+    - npm run lint
+    - npm test

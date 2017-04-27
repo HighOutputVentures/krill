@@ -1,4 +1,3 @@
-import EventEmitter from 'events';
 import uuid from 'uuid';
 import Promise from 'bluebird';
 import amqp from 'amqplib';
@@ -7,7 +6,7 @@ import debug from 'debug';
 
 const logger = debug('rabbitmq');
 
-export class RabbitMQ extends EventEmitter {
+export class RabbitMQ {
 
   /**
    * Rabbit application constructor
