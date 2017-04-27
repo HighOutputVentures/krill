@@ -1,1 +1,3 @@
-describe('Redis Adapter', () => {});
+import test from 'ava';
+
+test.todo('redis tests missing');

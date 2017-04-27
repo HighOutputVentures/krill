@@ -1,3 +1,3 @@
-describe('This is a sample test', () => {
-  it('should return true', (done) => { done(); });
-});
+import test from 'ava';
+
+test.todo('koa tests missing');

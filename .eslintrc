@@ -1,7 +1,6 @@
 env:
   es6: true
   node: true
-  mocha: true
 extends:
   - 'eslint:recommended'
   - 'airbnb'
@@ -14,3 +13,9 @@ rules:
   linebreak-style:
     - error
     - unix
+  global-require:
+    - off
+  import/no-dynamic-require:
+    - off
+  import/prefer-default-export:
+    - off

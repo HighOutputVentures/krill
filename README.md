@@ -1,6 +1,7 @@
 # krilljs
 
 krilljs is your microservice adapter library and framework.
+[![CircleCI](https://circleci.com/gh/kugtong33/krill/tree/master.svg?style=svg)](https://circleci.com/gh/kugtong33/krill/tree/master)
 
 ## the microservice structure
 ```

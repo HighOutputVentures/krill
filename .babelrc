@@ -1,5 +1,8 @@
 {
   "presets": [ [ "env", { "targets": { "node": true } } ] ],
-  "plugins": [ [ "babel-plugin-transform-builtin-extend", { "globals": [ "Error", "Array" ] } ] ],
+  "plugins": [
+    [ "babel-plugin-transform-builtin-extend", { "globals": [ "Error", "Array" ] } ],
+    "transform-object-rest-spread"
+  ],
   "retainLines": true
 }
