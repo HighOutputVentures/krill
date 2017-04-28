@@ -71,7 +71,7 @@ test('rabbitmq, given multiple worker with multiple messages', async (t) => {
   t.is(result.length, 5);
 });
 
-test.skip('rabbitmq, given a timeout request', async (t) => {
+test('rabbitmq, given a timeout request', async (t) => {
   const error = await t.throws(Adapter.RabbitMQ.publish('sample.worker5', { hello: 'world' }));
 
   t.is(error.message, 'request_timeout');

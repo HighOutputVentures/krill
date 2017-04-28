@@ -51,30 +51,31 @@ export class RabbitMQ {
   }
 
   async publish(route, request, time) {
-    const timeout = setTimeout(() => { throw new Error('request_timeout'); }, time || 5000);
-    const id = uuid.v4();
-    const callback = await this.channel.assertQueue('', { exclusive: true });
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => { reject(new Error('request_timeout')); }, time || 5000);
+      const id = uuid.v4();
 
-    await this.channel.assertQueue(route, { durable: true });
-    this.channel.sendToQueue(
-      route,
-      new Buffer(JSON.stringify({ body: request })),
-      { correlationId: id, replyTo: callback.queue },
-    );
+      this.channel.assertQueue('', { exclusive: true })
+        .then((callback) => {
+          this.channel.assertQueue(route, { durable: true })
+            .then(() => {
+              this.channel.sendToQueue(
+                route,
+                new Buffer(JSON.stringify({ body: request })),
+                { correlationId: id, replyTo: callback.queue },
+              );
 
-    const response = await new Promise((resolve) => {
-      this.channel.consume(callback.queue, (message) => {
-        if (message.properties.correlationId === id) {
-          resolve(JSON.parse(message.content.toString()));
-        }
-      }, { noAck: true });
+              this.channel.consume(callback.queue, (message) => {
+                if (message.properties.correlationId === id) {
+                  const response = JSON.parse(message.content.toString());
+                  if (response.code === 'invalid_request') reject(new Error(response.message));
+                  clearTimeout(timeout);
+                  resolve(response);
+                }
+              }, { noAck: true });
+            });
+        });
     });
-
-    clearTimeout(timeout);
-
-    if (response.code === 'invalid_request') throw new Error(response.message);
-
-    return response;
   }
 
   close() { this.connection.close(); }
