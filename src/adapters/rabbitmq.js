@@ -1,3 +1,4 @@
+/* globals Routes, Adapter, Resources */
 import uuid from 'uuid';
 import Promise from 'bluebird';
 import amqp from 'amqplib';
@@ -79,31 +80,28 @@ export class RabbitMQ {
   close() { this.connection.close(); }
 }
 
-export default class {
-  constructor() {
-    this.adapter = null;
-  }
-
-  async start({ conf, routes, resources }) {
+export default {
+  async start() {
     try {
-      const { host, vhost, user, password } = conf;
-      const connection = await amqp.connect(`amqp://${user}:${password}@${host}/${vhost}`);
-      const channel = await connection.createChannel();
+      const { RABBIT_HOST, RABBIT_VHOST, RABBIT_USER, RABBIT_PASSWORD } = process.env;
+      const routes = Routes.filter(route => route.type === 'amqp');
+      const rabbit = await amqp.connect(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
+      const channel = await rabbit.createChannel();
 
-      this.adapter = new RabbitMQ(connection, channel);
+      Adapter.RabbitMQ = new RabbitMQ(rabbit, channel);
 
       await Promise.all(_.map(routes, async (route) => {
-        const resource = _.get(resources, route.resource);
+        const resource = _.get(Resources, route.resource);
 
         if (!resource) {
           logger(`${route.resource} not found`);
           throw new Error('Resource not found');
         }
 
-        this.adapter.subscribe(route.api, resource);
+        await Adapter.RabbitMQ.subscribe(route.api, resource);
       }));
     } catch (err) { logger(err); throw err; }
-  }
+  },
 
-  async stop() { this.adapter.close(); }
-}
+  async stop() { Adapter.RabbitMQ.close(); },
+};
