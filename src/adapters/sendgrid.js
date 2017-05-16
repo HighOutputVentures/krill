@@ -2,7 +2,7 @@
 import sendgrid from 'sendgrid';
 import debug from 'debug';
 
-const { SENDGRID_KEY } = process.env;
+const { SENDGRID_KEY = '' } = process.env;
 const adapter = {};
 const logger = debug('sendgrid');
 

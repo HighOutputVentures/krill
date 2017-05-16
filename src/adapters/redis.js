@@ -8,7 +8,7 @@ adapter.start = async () => {
   Promise.promisifyAll(redis.RedisClient.prototype);
   Promise.promisifyAll(redis.Multi.prototype);
 
-  const { REDIS_HOST, REDIS_PORT } = process.env;
+  const { REDIS_HOST = 'localhost', REDIS_PORT = 6379 } = process.env;
   const client = redis.createClient({ host: REDIS_HOST, port: REDIS_PORT });
 
   Adapter.Redis = client;

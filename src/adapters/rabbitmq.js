@@ -84,7 +84,13 @@ export class RabbitMQ {
 export default {
   async start() {
     try {
-      const { RABBIT_HOST, RABBIT_VHOST, RABBIT_USER, RABBIT_PASSWORD } = process.env;
+      const {
+        RABBIT_HOST = 'localhost',
+        RABBIT_VHOST = '',
+        RABBIT_USER = 'guest',
+        RABBIT_PASSWORD = 'guest',
+      } = process.env;
+
       const routes = Routes.filter(route => route.type === 'amqp');
       const rabbit = await amqp.connect(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
       const channel = await rabbit.createChannel();
