@@ -3,7 +3,7 @@ import path from 'path';
 import _ from 'lodash';
 import Ajv from 'ajv';
 
-export const utilities = {
+export default {
   /* Dynamic require utility */
   require(dir, namespace) {
     const files = fs.existsSync(path.join(process.cwd(), dir)) ?
