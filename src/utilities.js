@@ -3,7 +3,7 @@ import path from 'path';
 import _ from 'lodash';
 import Ajv from 'ajv';
 
-export const utilities = {
+export default {
   /* Dynamic require utility */
   require(dir, namespace) {
     const files = fs.existsSync(path.join(process.cwd(), dir)) ?
@@ -24,6 +24,11 @@ export const utilities = {
     const valid = ajv.validate(
       require(path.join(process.cwd(), 'schema', schema)).default, json,
     );
-    if (!valid) throw new Error('invalid_resource').stack = ajv.errors;
+
+    if (!valid) {
+      const error = new Error('invalid_format');
+      error.stack = ajv.errors;
+      throw error;
+    }
   },
 };

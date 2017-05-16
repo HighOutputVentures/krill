@@ -8,7 +8,7 @@ import parser from 'koa-bodyparser';
 import path from 'path';
 import logger from 'koa-logger';
 
-const { KOA_PORT } = process.env;
+const { KOA_PORT = '8080' } = process.env;
 const adapter = {};
 const app = new Koa();
 const router = new Router();
