@@ -1,6 +1,6 @@
 {
   "name": "krilljs",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "microservice framework",
   "main": "dist/index.js",
   "scripts": {
@@ -27,7 +27,6 @@
     "amqplib": "^0.5.1",
     "babel-polyfill": "^6.23.0",
     "bluebird": "^3.4.7",
-    "couchbase": "^2.3.2",
     "debug": "^2.6.1",
     "koa": "^2.2.0",
     "koa-bodyparser": "^3.2.0",
@@ -36,7 +35,7 @@
     "koa-router": "^7.0.1",
     "lodash": "^4.17.4",
     "mongoose": "^4.9.9",
-    "mqsp": "^0.2.2",
+    "mqsp": "^0.2.3",
     "redis": "^2.6.5",
     "sendgrid": "^4.7.1",
     "uuid": "^3.0.1"
