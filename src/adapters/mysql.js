@@ -23,5 +23,5 @@ export const adapter = {
     });
   },
 
-  async stop() { /* noop, waiting for api updates */ },
+  async stop() { Adapter.MySQL.close(); },
 };
