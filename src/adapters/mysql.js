@@ -23,5 +23,5 @@ export const adapter = {
     });
   },
 
-  async stop() { Adapter.MySQL.close(); },
+  async stop() { await Adapter.MySQL.close(); },
 };
