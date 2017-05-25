@@ -52,7 +52,7 @@ export class RabbitMQ {
 
   async publish(route, request, time) {
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => { reject(new Error('request_timeout')); }, time || 5000);
+      const timeout = setTimeout(() => { reject(new Error('request_timeout')); }, time || 30000);
       const id = uuid.v4();
 
       this.channel.assertQueue('', { exclusive: true })
