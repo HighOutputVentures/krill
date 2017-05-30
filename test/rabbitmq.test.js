@@ -1,7 +1,7 @@
 import test from 'ava';
-import amqp from 'amqplib';
 import _ from 'lodash';
 import uuid from 'uuid';
+import Arque from 'arque';
 import { RabbitMQ } from '../src/adapters/rabbitmq';
 
 const Adapter = {};
@@ -10,16 +10,17 @@ async function delay(time) {
 }
 
 test.before(async () => {
-  const connection = await amqp.connect('amqp://localhost');
-  const channel = await connection.createChannel();
-
-  Adapter.RabbitMQ = new RabbitMQ(connection, channel);
+  const arque = new Arque('amqp://localhost');
+  Adapter.RabbitMQ = new RabbitMQ(arque);
 });
 
 test('rabbitmq, given single worker with single message', async (t) => {
   const message = { hello: 'world' };
 
-  await Adapter.RabbitMQ.subscribe('sample.worker1', async ({ body }) => body);
+  await Adapter.RabbitMQ.subscribe('sample.worker1', async ({ body }) => {
+    console.log(body);
+    return body;
+  });
   const { body } = await Adapter.RabbitMQ.publish('sample.worker1', message);
 
   t.deepEqual(message, body);
@@ -74,7 +75,7 @@ test('rabbitmq, given multiple worker with multiple messages', async (t) => {
 test('rabbitmq, given a timeout request', async (t) => {
   const error = await t.throws(Adapter.RabbitMQ.publish('sample.worker5', { hello: 'world' }));
 
-  t.is(error.message, 'request_timeout');
+  t.is(error.message, 'Job timeout.');
 });
 
 test.after(async () => { Adapter.RabbitMQ.close(); });
