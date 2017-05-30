@@ -1,6 +1,6 @@
 {
   "name": "krilljs",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "description": "microservice framework",
   "main": "dist/index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   "homepage": "https://github.com/kugtong33/krill#krilljs",
   "dependencies": {
     "ajv": "^4.11.3",
-    "amqplib": "^0.5.1",
+    "arque": "^0.3.3",
     "babel-polyfill": "^6.23.0",
     "bluebird": "^3.4.7",
     "debug": "^2.6.1",
@@ -63,7 +63,7 @@
     "source": [
       "src/**/*.js"
     ],
-    "concurrency": 5,
+    "serial": true,
     "failFast": true,
     "failWithoutAssertions": true,
     "require": [

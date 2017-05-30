@@ -26,9 +26,7 @@ export default {
     );
 
     if (!valid) {
-      const error = new Error('invalid_format');
-      error.stack = ajv.errors;
-      throw error;
+      throw new Error(ajv.errorsText());
     }
   },
 };
