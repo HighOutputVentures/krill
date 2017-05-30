@@ -17,10 +17,7 @@ test.before(async () => {
 test('rabbitmq, given single worker with single message', async (t) => {
   const message = { hello: 'world' };
 
-  await Adapter.RabbitMQ.subscribe('sample.worker1', async ({ body }) => {
-    console.log(body);
-    return body;
-  });
+  await Adapter.RabbitMQ.subscribe('sample.worker1', async ({ body }) => body);
   const { body } = await Adapter.RabbitMQ.publish('sample.worker1', message);
 
   t.deepEqual(message, body);
