@@ -45,10 +45,10 @@ export class RabbitMQ {
     const response = await client({ body: request });
 
     if (response.code === 'invalid_request') {
-      const error = new Error(response.message);
+      const error = new Error(response.body);
       error.name = 'RabbitMQAdapterError';
 
-      logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.message}`);
+      logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
       throw error;
     }
 
