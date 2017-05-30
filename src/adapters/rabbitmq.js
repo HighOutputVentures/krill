@@ -30,7 +30,7 @@ export class RabbitMQ {
         response = await resource(message);
         code = 'success';
       } catch (err) {
-        code = 'invalid_request'
+        code = 'invalid_request';
         response = err.message;
       }
 
