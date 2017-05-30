@@ -32,6 +32,8 @@ export class RabbitMQ {
       } catch (err) {
         code = 'invalid_request';
         response = err.message;
+
+        logger(`route: ${route}, request: ${JSON.stringify(message, null, 2)}, error: ${err.message}`);
       }
 
       return { body: response, code };
@@ -40,7 +42,17 @@ export class RabbitMQ {
 
   async publish(route, request, timeout = 5000) {
     const client = await this.arque.createClient({ job: route, timeout });
-    return client({ body: request });
+    const response = await client({ body: request });
+
+    if (response.code === 'invalid_request') {
+      const error = new Error(response.message);
+      error.name = 'RabbitMQAdapterError';
+
+      logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.message}`);
+      throw error;
+    }
+
+    return response;
   }
 
   close() {
@@ -67,8 +79,12 @@ export default {
         const resource = _.get(Resources, route.resource);
 
         if (!resource) {
-          logger(`${route.resource} not found`);
-          throw new Error('Resource not found');
+          logger(`Resource: ${route.resource} not found`);
+
+          const error = new Error(`Resource: ${route.resource} not found`);
+          error.name = 'RabbitMQAdapterError';
+
+          throw error;
         }
 
         await Adapter.RabbitMQ.subscribe(route.api, resource);
