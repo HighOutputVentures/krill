@@ -9,63 +9,60 @@ import path from 'path';
 import logger from 'koa-logger';
 
 const { KOA_PORT = '8080', KOA_HOST = '127.0.0.1' } = process.env;
-const adapter = {};
 const app = new Koa();
 const router = new Router();
 const middlewares = require(path.join(process.cwd(), 'config/middlewares')).default;
 const policies = require(path.join(process.cwd(), 'config/policies')).default;
 
-let server;
+export default {
+  async start() {
+    /* require policies */
+    Util.require(path.join(process.cwd(), 'policies'), 'Policies');
 
-adapter.start = async () => {
-  /* require policies */
-  Util.require(path.join(process.cwd(), 'policies'), 'Policies');
+    /* load koa modules */
+    app.use(logger());
+    app.use(parser({ extendTypes: { json: ['application/vnd.api+json'] } }));
 
-  /* load koa modules */
-  app.use(logger());
-  app.use(parser({ extendTypes: { json: ['application/vnd.api+json'] } }));
+    /* load middlewares */
+    _.each(middlewares, middleware => app.use(middleware));
 
-  /* load middlewares */
-  _.each(middlewares, middleware => app.use(middleware));
+    /* load routes */
+    const routes = Routes.filter(route => route.type === 'http');
+    _.each(routes, (route) => {
+      const stack = [];
+      const resource = _.get(Resources, route.resource);
+      const policy = _.get(policies, route.resource, []);
 
-  /* load routes */
-  const routes = Routes.filter(route => route.type === 'http');
-  _.each(routes, (route) => {
-    const stack = [];
-    const resource = _.get(Resources, route.resource);
-    const policy = _.get(policies, route.resource, []);
+      if (!/^(get|post|delete|put|patch) (.+)$/.test(route.api)) {
+        throw new Error(`Invalid rest api ${route.api}`);
+      }
 
-    if (!/^(get|post|delete|put|patch) (.+)$/.test(route.api)) {
-      throw new Error(`Invalid rest api ${route.api}`);
-    }
+      if (!resource) { throw new Error('Resource not found'); }
 
-    if (!resource) { throw new Error('Resource not found'); }
+      /* Stack policies */
+      _.each(policy, (name) => {
+        if (!Policies[name]) throw new Error('Policy not found');
+        stack.push(Policies[name]);
+      });
 
-    /* Stack policies */
-    _.each(policy, (name) => {
-      if (!Policies[name]) throw new Error('Policy not found');
-      stack.push(Policies[name]);
+      /* Stack Resource */
+      const [method, url] = route.api.split(' ');
+      stack.push(async (ctx, next) => {
+        await resource.call(this, ctx);
+        await next();
+      });
+
+      router[method](url, compose(stack));
     });
 
-    /* Stack Resource */
-    const [method, url] = route.api.split(' ');
-    stack.push(async (ctx, next) => {
-      await resource.call(this, ctx);
-      await next();
-    });
+    /* load routes into koa */
+    app.use(router.routes());
+    app.use(router.allowedMethods());
 
-    router[method](url, compose(stack));
-  });
+    try { this.server = app.listen(KOA_PORT, KOA_HOST); } catch (err) { throw err; }
+  },
 
-  /* load routes into koa */
-  app.use(router.routes());
-  app.use(router.allowedMethods());
-
-  try { server = app.listen(KOA_PORT, KOA_HOST); } catch (err) { throw err; }
+  async stop() {
+    await new Promise((resolve) => { this.server.close(resolve); });
+  },
 };
-
-adapter.stop = async () => {
-  await new Promise((resolve) => { server.close(resolve); });
-};
-
-export default adapter;

@@ -3,7 +3,6 @@ import sendgrid from 'sendgrid';
 import debug from 'debug';
 
 const { SENDGRID_KEY = '' } = process.env;
-const adapter = {};
 const logger = debug('sendgrid');
 
 class Mailer {
@@ -18,15 +17,23 @@ class Mailer {
   * @param {String} object.to
   * @param {String} object.content
   */
-  async send({ from, subject, to, content }) {
+  async send({ from, subject, to, content, type = 'text/plain' }) {
     try {
+      logger(`
+        from: ${from},
+        to: ${to},
+        subject: ${subject},
+        type: ${type},
+        content: ${content}
+      `);
+
       const request = this.mailer.emptyRequest({
         method: 'POST',
         path: '/v3/mail/send',
         body: {
           personalizations: [{ to: [{ email: to }], subject }],
           from: { email: from },
-          content: [{ type: 'text/plain', value: content }],
+          content: [{ type, value: content }],
         },
       });
       await this.mailer.API(request);
@@ -34,10 +41,10 @@ class Mailer {
   }
 }
 
-adapter.start = async () => {
-  Adapter.Sendgrid = new Mailer();
+export default {
+  async start() {
+    Adapter.Sendgrid = new Mailer();
+  },
+
+  async stop() { /* noop */ },
 };
-
-adapter.stop = async () => {};
-
-export default adapter;
