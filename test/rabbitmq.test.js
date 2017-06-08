@@ -22,11 +22,10 @@ test('rabbitmq, given single worker with single message', async (t) => {
   const message = { hello: 'world' };
 
   await amqp.route('sample.worker1', async (ctx) => { ctx.response.body = ctx.request.body; });
-  const response = await rpc('sample.worker1', message);
+  const { body, code } = await rpc('sample.worker1', message);
 
-  console.log(response);
-
-  t.pass();
+  t.is(code, 'success');
+  t.deepEqual(body, message);
 });
 
 test('rabbitmq, given single worker with multiple messages', async (t) => {
