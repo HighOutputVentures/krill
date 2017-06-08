@@ -2,6 +2,7 @@ import test from 'ava';
 import _ from 'lodash';
 import uuid from 'uuid';
 import { AMQP } from '../src/adapters/rabbitmq';
+import { rpc } from '../src/adapters/rabbitmq';
 
 const amqp = new AMQP();
 async function delay(time) {
@@ -21,7 +22,7 @@ test('rabbitmq, given single worker with single message', async (t) => {
   const message = { hello: 'world' };
 
   await amqp.route('sample.worker1', async (ctx) => { ctx.response.body = ctx.request.body; });
-  const response = await amqp.publish('sample.worker1', message);
+  const response = await rpc('sample.worker1', message);
 
   console.log(response);
 
@@ -37,7 +38,7 @@ test('rabbitmq, given single worker with multiple messages', async (t) => {
     ctx.response.body = { time, ...ctx.request.body };
   });
 
-  const result = await Promise.all(_.times(5, async () => amqp.publish('sample.worker2', message, 10000)));
+  const result = await Promise.all(_.times(5, async () => rpc('sample.worker2', message, 10000)));
 
   t.is(result.length, 5);
 });
@@ -52,7 +53,7 @@ test('rabbitmq, given multiple worker with single message', async (t) => {
     })),
   );
 
-  await amqp.publish('sample.worker3', message);
+  await rpc('sample.worker3', message);
 
   t.is(responses.length, 1);
 });
@@ -68,14 +69,14 @@ test('rabbitmq, given multiple worker with multiple messages', async (t) => {
     })),
   );
 
-  const result = await Promise.all(_.times(5, async () => amqp.publish('sample.worker4', { id: uuid.v4(), ...message })));
+  const result = await Promise.all(_.times(5, async () => rpc('sample.worker4', { id: uuid.v4(), ...message })));
 
   t.is(responses.length, 5);
   t.is(result.length, 5);
 });
 
 test('rabbitmq, given a timeout request', async (t) => {
-  const error = await t.throws(amqp.publish('sample.worker5', { hello: 'world' }));
+  const error = await t.throws(rpc('sample.worker5', { hello: 'world' }));
 
   t.is(error.message, 'Job timeout.');
 });

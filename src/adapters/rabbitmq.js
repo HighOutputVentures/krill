@@ -13,6 +13,21 @@ const {
   RABBIT_PASSWORD = 'guest',
 } = process.env;
 
+export async function rpc(route, request, timeout = 6000) {
+  const arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
+  const client = await arque.createClient({ job: route, timeout });
+  const response = await client({ body: request });
+
+  if (response.code === 'invalid_request') {
+    logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
+    const error = new Error(response.body);
+    error.name = 'RabbitMQAdapterError';
+    throw error;
+  }
+
+  return response;
+}
+
 export class AMQP {
 
   constructor() {
@@ -33,7 +48,7 @@ export class AMQP {
    */
   async route(name, resource) {
     const stack = (Array.isArray(resource)) ?
-      compose([ ...this.middlewares, resource ]) : compose(this.middlewares.concat(resource));
+      compose([...this.middlewares, resource]) : compose(this.middlewares.concat(resource));
     const ctx = Object.create(this.ctx);
 
     await this.arque.createWorker({ job: name }, async ({ body }) => {
@@ -44,24 +59,10 @@ export class AMQP {
 
         return { body: ctx.response.body, code: 'success' };
       } catch (err) {
-        logger(`route: ${name}, request: ${JSON.stringify(message, null, 2)}, error: ${err.message}`);
+        logger(`route: ${name}, request: ${JSON.stringify(body, null, 2)}, error: ${err.message}`);
         return { code: 'invalid_request', body: err.message };
       }
     });
-  }
-
-  async publish(route, request, timeout = 6000) {
-    const client = await this.arque.createClient({ job: route, timeout });
-    const response = await client({ body: request });
-
-    if (response.code === 'invalid_request') {
-      logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
-      const error = new Error(response.body);
-      error.name = 'RabbitMQAdapterError';
-      throw error;
-    }
-
-    return response;
   }
 
   close() {
@@ -79,18 +80,14 @@ export default {
 
         if (!resource) {
           logger(`Resource: ${route.resource} not found`);
-
           const error = new Error(`Resource: ${route.resource} not found`);
           error.name = 'RabbitMQAdapterError';
           throw error;
         }
 
-        await Adapter.RabbitMQ.subscribe(route.api, resource);
+        await Adapter.RabbitMQ.route(route.api, resource);
       }));
-    } catch (err) {
-      logger(err);
-      throw err;
-    }
+    } catch (err) { throw err; }
   },
 
   async stop() {
