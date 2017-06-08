@@ -17,7 +17,7 @@ class Mailer {
   * @param {String} object.to
   * @param {String} object.content
   */
-  async send({ from, subject, to, content, type = 'text/plain' }) {
+  async send({ from, fromname = '', subject, to, toname = '', content, type = 'text/plain' }) {
     try {
       logger(`
         from: ${from},
@@ -31,8 +31,8 @@ class Mailer {
         method: 'POST',
         path: '/v3/mail/send',
         body: {
-          personalizations: [{ to: [{ email: to }], subject }],
-          from: { email: from },
+          personalizations: [{ to: [{ email: to, name: toname }], subject }],
+          from: { email: from, name: fromname },
           content: [{ type, value: content }],
         },
       });
