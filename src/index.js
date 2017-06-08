@@ -3,7 +3,7 @@
 import _ from 'lodash';
 import path from 'path';
 import Promise from 'bluebird';
-import utilities from './utilities';
+import utilities from './lib/utilities';
 
 global.Util = utilities;
 global.Adapter = {};
