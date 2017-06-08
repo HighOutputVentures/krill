@@ -11,7 +11,7 @@ machine:
   timezone:
     Etc/UTC
   node:
-    version: 6.9.5
+    version: 6.10.2
 test:
   override:
     - npm run lint

@@ -1,6 +1,6 @@
 {
   "name": "krilljs",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "microservice framework",
   "main": "dist/index.js",
   "scripts": {
@@ -36,8 +36,8 @@
     "lodash": "^4.17.4",
     "mongoose": "^4.9.9",
     "mqsp": "^0.2.3",
-    "redis": "^2.6.5",
-    "sendgrid": "^4.7.1",
+    "redis": "^2.7.1",
+    "sendgrid": "^5.1.1",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
