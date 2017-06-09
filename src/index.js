@@ -13,8 +13,8 @@ global.Module = {};
 export default {
   async start() {
     /* load policies and resources to the global object */
-    Util.require(path.join(process.cwd(), 'policies'), 'Policies');
-    Util.require(path.join(process.cwd(), 'resources'), 'Resources');
+    Util.require('policies', 'Policies');
+    Util.require('resources', 'Resources');
 
     /* require all the config files */
     const routes = require(path.join(process.cwd(), 'config/routes')).default;
@@ -23,22 +23,29 @@ export default {
     const adapters = require(path.join(process.cwd(), 'config/adapters')).default;
 
     /* load bootloaders */
-    _.each(bootloaders, bootloader => bootloader());
+    await Promise.all(bootloaders);
 
     // routes, policies, schema, middlewares
-    const routed = router(routes, global.Policies, global.Resources);
+    const routed = router(routes, global.Resources, global.Policies);
 
-    console.log(routes);
-    console.log(middlewares);
-    console.log(bootloaders);
-    console.log(adapters);
     console.log(routed);
-
     /* start adapters */
-    // await Promise.all(_.map(adapters, async (adapter) => {
-    //   Module[adapter] = require(`./adapters/${adapter}`).default;
-    //   await Module[adapter].start();
-    // }));
+    await Promise.all(_.map(adapters, async (adapter) => {
+      Module[adapter] = require(`./adapters/${adapter}`).default;
+
+      console.log(adapter);
+      console.log(Module[adapter]);
+
+      if (adapter === 'koa') {
+        Module[adapter].middlewares = middlewares;
+        Module[adapter].routes = routed.filter((route) => { return route.type === 'http' });
+      } else if (adapter == 'rabbitmq') {
+        Module[adapter].middlewares = middlewares;
+        Module[adapter].routes = routed.filter((route) => { return route.type === 'amqp' });
+      }
+
+      await Module[adapter].start();
+    }));
   },
 
   async stop() {

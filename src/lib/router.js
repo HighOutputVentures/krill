@@ -1,35 +1,37 @@
 import _ from 'lodash';
 import Ajv from 'ajv';
+import utilities from './utilities';
 
 /* load all Ajv Schema*/
 const ajv = new Ajv();
-Util.loadSchema(ajv, 'schema');
+utilities.loadSchema(ajv, 'schema');
 
 export default function (routes, resources, policies) {
-  return _.reduce(routes, ({ type, api, resource, policy, schema }) => {
+  return _.reduce(routes, (reduced, { type, api, resource, policy = [], schema }) => {
     const stack = [];
     const resourceObject = _.get(resources, resource);
 
     if (!resourceObject) { throw new Error('Resource not found'); }
 
     /* stack schema validator */
-    stack.push(async (ctx, next) => {
-      const { body, headers } = schema;
+    if (schema) {
+      stack.push(async (ctx, next) => {
+        const { body, headers } = schema;
 
-      let valid;
+        let valid;
 
-      if (!body && !headers) { await next(); return; }
-      if (body) { valid = ajv.validate(body, ctx.body); }
-      if (headers) { valid = ajv.validate(headers, ctx.headers); }
+        if (!body && !headers) { await next(); return; }
+        if (body) { valid = ajv.validate(body, ctx.body); }
+        if (headers) { valid = ajv.validate(headers, ctx.headers); }
+        if (!valid) {
+          const error = new Error(ajv.errorsText());
+          error.name = 'AjvError';
+          throw error;
+        }
 
-      if (!valid) {
-        const error = new Error(ajv.errorsText());
-        error.name = 'AjvError';
-        throw error;
-      }
-
-      await next();
-    });
+        await next();
+      });
+    }
 
     /* stack policies */
     _.each(policy, (name) => {
@@ -39,7 +41,8 @@ export default function (routes, resources, policies) {
 
     /* stack resource object */
     stack.push(resourceObject);
+    reduced.push({ type, api, stack });
 
-    return { type, api, stack };
+    return reduced;
   }, []);
 }

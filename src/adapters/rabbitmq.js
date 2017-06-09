@@ -48,7 +48,7 @@ export class AMQP {
    */
   async route(name, resource) {
     const stack = (Array.isArray(resource)) ?
-      compose([...this.middlewares, resource]) : compose(this.middlewares.concat(resource));
+      compose(this.middlewares.slice().push(resource)) : compose(this.middlewares.concat(resource));
     const ctx = Object.create(this.ctx);
 
     await this.arque.createWorker({ job: name }, async ({ body }) => {
@@ -73,19 +73,11 @@ export class AMQP {
 export default {
   async start() {
     try {
-      const routes = Routes.filter(route => route.type === 'amqp');
+      this.routes = [];
+      this.middlewares = [];
 
-      await Promise.all(_.map(routes, async (route) => {
-        const resource = _.get(Resources, route.resource);
-
-        if (!resource) {
-          logger(`Resource: ${route.resource} not found`);
-          const error = new Error(`Resource: ${route.resource} not found`);
-          error.name = 'RabbitMQAdapterError';
-          throw error;
-        }
-
-        await Adapter.RabbitMQ.route(route.api, resource);
+      await Promise.all(_.map(this.routes, async ({ api, stack }) => {
+        await Adapter.RabbitMQ.route(api, stack);
       }));
     } catch (err) { throw err; }
   },
