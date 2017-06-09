@@ -1,6 +1,10 @@
 import _ from 'lodash';
 import Ajv from 'ajv';
 
+/* load all Ajv Schema*/
+const ajv = new Ajv();
+Util.loadSchema(ajv, 'schema');
+
 export default function (routes, resources, policies) {
   return _.reduce(routes, ({ type, api, resource, policy, schema }) => {
     const stack = [];
@@ -10,7 +14,6 @@ export default function (routes, resources, policies) {
 
     /* stack schema validator */
     stack.push(async (ctx, next) => {
-      const ajv = new Ajv();
       const { body, headers } = schema;
 
       let valid;

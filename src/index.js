@@ -26,13 +26,19 @@ export default {
     _.each(bootloaders, bootloader => bootloader());
 
     // routes, policies, schema, middlewares
-    router(routes, global.Policies, global.Resources);
+    const routed = router(routes, global.Policies, global.Resources);
+
+    console.log(routes);
+    console.log(middlewares);
+    console.log(bootloaders);
+    console.log(adapters);
+    console.log(routed);
 
     /* start adapters */
-    await Promise.all(_.map(adapters, async (adapter) => {
-      Module[adapter] = require(`./adapters/${adapter}`).default;
-      await Module[adapter].start();
-    }));
+    // await Promise.all(_.map(adapters, async (adapter) => {
+    //   Module[adapter] = require(`./adapters/${adapter}`).default;
+    //   await Module[adapter].start();
+    // }));
   },
 
   async stop() {
