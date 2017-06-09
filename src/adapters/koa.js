@@ -12,8 +12,6 @@ const router = new Router();
 
 export default {
   async start() {
-    this.routes = [];
-    this.middlewares = [];
     this.server = null;
 
     /* load koa modules */
@@ -26,7 +24,8 @@ export default {
     /* load http routes */
     const routes = this.routes.filter(route => route.type === 'http');
     _.each(routes, (route) => {
-      router[route.method](route.url, compose(route.stack));
+      const [method, url] = route.api.split(' ');
+      router[method](url, compose(route.stack));
     });
 
     /* load routes into koa */

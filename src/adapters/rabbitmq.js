@@ -29,7 +29,6 @@ export async function rpc(route, request, timeout = 6000) {
 }
 
 export class AMQP {
-
   constructor() {
     this.arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
     this.middlewares = [];
@@ -48,7 +47,7 @@ export class AMQP {
    */
   async route(name, resource) {
     const stack = (Array.isArray(resource)) ?
-      compose(this.middlewares.slice().push(resource)) : compose(this.middlewares.concat(resource));
+      compose(this.middlewares.slice().concat([resource])) : compose(this.middlewares.concat(resource));
     const ctx = Object.create(this.ctx);
 
     await this.arque.createWorker({ job: name }, async ({ body }) => {
@@ -72,17 +71,21 @@ export class AMQP {
 
 export default {
   async start() {
-    try {
-      this.routes = [];
-      this.middlewares = [];
+    this.amqp = new AMQP();
+    this.amqp.use(async (ctx, next) => {
+      const start = Date.now();
+      await next();
+      logger(`route: ${ctx.route}, benchmark: ${start - Date.now()}`);
+    });
 
+    try {
       await Promise.all(_.map(this.routes, async ({ api, stack }) => {
-        await Adapter.RabbitMQ.route(api, stack);
+        await this.amqp.route(api, stack);
       }));
     } catch (err) { throw err; }
   },
 
   async stop() {
-    Adapter.RabbitMQ.close();
+    this.amqp.close();
   },
 };

@@ -23,18 +23,13 @@ export default {
     const adapters = require(path.join(process.cwd(), 'config/adapters')).default;
 
     /* load bootloaders */
-    await Promise.all(bootloaders);
+    await Promise.all(_.map(bootloaders, async (bootloader) => bootloader()));
 
-    // routes, policies, schema, middlewares
     const routed = router(routes, global.Resources, global.Policies);
 
-    console.log(routed);
     /* start adapters */
     await Promise.all(_.map(adapters, async (adapter) => {
       Module[adapter] = require(`./adapters/${adapter}`).default;
-
-      console.log(adapter);
-      console.log(Module[adapter]);
 
       if (adapter === 'koa') {
         Module[adapter].middlewares = middlewares;
