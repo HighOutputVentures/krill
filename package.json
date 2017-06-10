@@ -57,11 +57,12 @@
     "eslint-plugin-jsx-a11y": "^4.0.0",
     "eslint-plugin-react": "^6.9.0",
     "gulp": "^3.9.1",
-    "gulp-shell": "^0.6.3"
+    "gulp-shell": "^0.6.3",
+    "supertest": "^3.0.0"
   },
   "ava": {
     "files": [
-      "test/*.test.js"
+      "test/application.test.js"
     ],
     "source": [
       "src/**/*.js"

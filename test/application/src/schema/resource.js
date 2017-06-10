@@ -14,21 +14,7 @@ export default {
         self: { type: 'string' },
       },
     },
-    data: {
-      type: 'object',
-      properties: {
-        type: { type: 'string' },
-        id: { type: ['string', 'integer'] },
-        attributes: { type: 'object' },
-        links: {
-          type: 'object',
-          properties: {
-            self: { type: 'string' },
-          },
-        },
-      },
-      required: ['type', 'attributes'],
-    },
+    data: { type: 'object' },
     errors: {
       type: 'array',
       items: {

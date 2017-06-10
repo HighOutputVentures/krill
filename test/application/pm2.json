@@ -6,7 +6,7 @@
       "watch": false,
       "env": {
         "KOA_HOST": "127.0.0.1",
-        "KOA_PORT": "3030",
+        "KOA_PORT": "8080",
         "RABBIT_HOST": "127.0.0.1",
         "RABBIT_VHOST": "",
         "RABBIT_USER": "guest",

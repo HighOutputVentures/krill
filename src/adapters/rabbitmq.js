@@ -1,4 +1,4 @@
-/* globals Routes, Adapter, Resources */
+/* globals Adapter */
 import Promise from 'bluebird';
 import _ from 'lodash';
 import debug from 'debug';
@@ -13,24 +13,9 @@ const {
   RABBIT_PASSWORD = 'guest',
 } = process.env;
 
-export async function rpc(route, request, timeout = 6000) {
-  const arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
-  const client = await arque.createClient({ job: route, timeout });
-  const response = await client({ body: request });
-
-  if (response.code === 'invalid_request') {
-    logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
-    const error = new Error(response.body);
-    error.name = 'RabbitMQAdapterError';
-    throw error;
-  }
-
-  return response;
-}
-
 export class AMQP {
   constructor() {
-    this.arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
+    this.arque = null;
     this.middlewares = [];
     this.ctx = { request: {}, response: {} };
   }
@@ -47,7 +32,9 @@ export class AMQP {
    */
   async route(name, resource) {
     const stack = (Array.isArray(resource)) ?
-      compose(this.middlewares.slice().concat([resource])) : compose(this.middlewares.concat(resource));
+      compose(this.middlewares.slice().concat([resource])) :
+      compose(this.middlewares.concat(resource));
+
     const ctx = Object.create(this.ctx);
 
     await this.arque.createWorker({ job: name }, async ({ body }) => {
@@ -71,7 +58,10 @@ export class AMQP {
 
 export default {
   async start() {
+    const arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
+
     this.amqp = new AMQP();
+    this.amqp.arque = arque;
     this.amqp.use(async (ctx, next) => {
       const start = Date.now();
       await next();
@@ -83,6 +73,21 @@ export default {
         await this.amqp.route(api, stack);
       }));
     } catch (err) { throw err; }
+
+    /* set amqp client */
+    Adapter.RabbitMQ = async (route, request, timeout = 6000) => {
+      const client = await arque.createClient({ job: route, timeout });
+      const response = await client({ body: request });
+
+      if (response.code === 'invalid_request') {
+        logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
+        const error = new Error(response.body);
+        error.name = 'RabbitMQAdapterError';
+        throw error;
+      }
+
+      return response;
+    };
   },
 
   async stop() {

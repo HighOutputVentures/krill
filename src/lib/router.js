@@ -11,7 +11,11 @@ export default function (routes, resources, policies) {
     const stack = [];
     const resourceObject = _.get(resources, resource);
 
-    if (!resourceObject) { throw new Error('Resource not found'); }
+    if (!resourceObject) {
+      const error = new Error(`${resource} resource not found`);
+      error.name = 'RouterError';
+      throw error;
+    }
 
     /* stack schema validator */
     if (schema) {
@@ -21,8 +25,8 @@ export default function (routes, resources, policies) {
         let valid;
 
         if (!body && !headers) { await next(); return; }
-        if (body) { valid = ajv.validate(body, ctx.body); }
-        if (headers) { valid = ajv.validate(headers, ctx.headers); }
+        if (body) { valid = ajv.validate(body, ctx.request.body); }
+        if (headers) { valid = ajv.validate(headers, ctx.request.headers); }
         if (!valid) {
           const error = new Error(ajv.errorsText());
           error.name = 'AjvError';

@@ -1,7 +1,3 @@
-async function delay(time) {
-  return new Promise((resolve) => { setTimeout(resolve, time); });
-}
-
 export default [
   async () => {
     const time = 500 * Math.random();

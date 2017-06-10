@@ -34,8 +34,12 @@ export default {
   loadSchema(ajv, dir) {
     const schemas = fs.existsSync(path.join(process.cwd(), dir)) ?
       fs.readdirSync(path.join(process.cwd(), dir)) : [];
+
+      console.log(dir);
+      console.log(path.join(process.cwd(), dir));
+      console.log(schemas);
     _.each(schemas, (schema) => {
-      ajv.addschema(require(path.join(process.cwd(), dir, schema)).default, path.basename(schema, '.js'));
+      ajv.addSchema(require(path.join(process.cwd(), dir, schema)).default, path.basename(schema, '.js'));
     });
   },
 };
