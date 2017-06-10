@@ -12,7 +12,8 @@
         "RABBIT_USER": "guest",
         "RABBIT_PASSWORD": "guest",
         "APP_MODE": "development",
-        "TZ": "UTC"
+        "TZ": "UTC",
+        "DEBUG": "koa,rabbitmq,redis,mongoose,mysql*,redis"
       }
     }
   ]

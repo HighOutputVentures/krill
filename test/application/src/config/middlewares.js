@@ -1,3 +1,6 @@
+import debug from 'debug';
+const logger = debug('rabbitmq');
+
 export default {
   /* http middlewares */
   http: [
@@ -52,7 +55,8 @@ export default {
 
       await next();
 
-      console.log(`benchmark: ${Date.now() - start}`);
+      console.log(`route: ${ctx.route}, message: ${ctx.request.body}`);
+      logger(`route: ${ctx.route}, benchmark: ${Date.now() - start}ms`);
     },
     async(ctx, next) => {
       const time = 500 * Math.random();

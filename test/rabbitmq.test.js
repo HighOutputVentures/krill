@@ -1,10 +1,27 @@
 import test from 'ava';
 import _ from 'lodash';
 import uuid from 'uuid';
+import Arque from 'arque';
 import { AMQP } from '../src/adapters/rabbitmq';
-import { rpc } from '../src/adapters/rabbitmq';
 
+const arque = new Arque(`amqp://localhost/`);
 const amqp = new AMQP();
+amqp.arque = arque;
+
+const rpc = async (route, request, timeout = 6000) => {
+  const client = await arque.createClient({ job: route, timeout });
+  const response = await client({ body: request });
+
+  if (response.code === 'invalid_request') {
+    logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
+    const error = new Error(response.body);
+    error.name = 'RabbitMQAdapterError';
+    throw error;
+  }
+
+  return response;
+};
+
 async function delay(time) {
   return new Promise((resolve) => { setTimeout(resolve, time); });
 }

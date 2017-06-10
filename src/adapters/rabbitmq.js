@@ -32,12 +32,12 @@ export class AMQP {
    */
   async route(name, resource) {
     const stack = (Array.isArray(resource)) ?
-      compose(this.middlewares.slice().concat([resource])) :
-      compose(this.middlewares.concat(resource));
+      compose(this.middlewares.slice().concat(resource)) :
+      compose(this.middlewares.slice().concat([resource]));
 
     const ctx = Object.create(this.ctx);
 
-    await this.arque.createWorker({ job: name }, async ({ body }) => {
+    await this.arque.createWorker({ job: name, concurrency: 500 }, async ({ body }) => {
       try {
         ctx.route = name;
         ctx.request.body = body;
@@ -59,14 +59,9 @@ export class AMQP {
 export default {
   async start() {
     const arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
-
     this.amqp = new AMQP();
     this.amqp.arque = arque;
-    this.amqp.use(async (ctx, next) => {
-      const start = Date.now();
-      await next();
-      logger(`route: ${ctx.route}, benchmark: ${start - Date.now()}`);
-    });
+    this.amqp.middlewares = this.middlewares;
 
     try {
       await Promise.all(_.map(this.routes, async ({ api, stack }) => {

@@ -6,7 +6,7 @@ global.delay = async(time) => {
   return new Promise((resolve) => { setTimeout(resolve, time); });
 }
 
-if (process.env.APP_MODE !== 'testing') { krill.start(); }
+krill.start();
 
 process.on('SIGTERM', () => {
   krill.stop().then(() => { process.exit(0); });

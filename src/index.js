@@ -43,6 +43,8 @@ export default {
 
       await Module[adapter].start();
     }));
+
+    console.log('server started...');
   },
 
   async stop() {
