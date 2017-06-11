@@ -1,19 +1,28 @@
-/* globals Routes, Adapter, Resources */
+/* globals Adapter */
 import Promise from 'bluebird';
 import _ from 'lodash';
 import debug from 'debug';
 import Arque from 'arque';
+import compose from '../lib/compose';
 
 const logger = debug('rabbitmq');
+const {
+  RABBIT_HOST = 'localhost',
+  RABBIT_VHOST = '',
+  RABBIT_USER = 'guest',
+  RABBIT_PASSWORD = 'guest',
+} = process.env;
 
-export class RabbitMQ {
+export class AMQP {
+  constructor() {
+    this.arque = null;
+    this.middlewares = [];
+    this.ctx = { request: {}, response: {} };
+  }
 
-  /**
-   * Rabbit application constructor
-   * @param {object} arque
-   */
-  constructor(arque) {
-    this.arque = arque;
+  use(middleware) {
+    this.middlewares.push(middleware);
+    return this;
   }
 
   /**
@@ -21,38 +30,25 @@ export class RabbitMQ {
    * @param {string} route
    * @param {function} resource
    */
-  async subscribe(route, resource) {
-    await this.arque.createWorker({ job: route, concurrency: 1 }, async (message) => {
-      let code;
-      let response;
+  async route(name, resource) {
+    const stack = (Array.isArray(resource)) ?
+      compose(this.middlewares.slice().concat(resource)) :
+      compose(this.middlewares.slice().concat([resource]));
 
+    const ctx = Object.create(this.ctx);
+
+    await this.arque.createWorker({ job: name, concurrency: 500 }, async ({ body }) => {
       try {
-        response = await resource(message);
-        code = 'success';
+        ctx.route = name;
+        ctx.request.body = body;
+        await stack(ctx);
+
+        return { body: ctx.response.body, code: 'success' };
       } catch (err) {
-        code = 'invalid_request';
-        response = err.message;
-
-        logger(`route: ${route}, request: ${JSON.stringify(message, null, 2)}, error: ${err.message}`);
+        logger(`route: ${name}, request: ${JSON.stringify(body, null, 2)}, error: ${err.message}`);
+        return { code: 'invalid_request', body: err.message };
       }
-
-      return { body: response, code };
     });
-  }
-
-  async publish(route, request, timeout = 5000) {
-    const client = await this.arque.createClient({ job: route, timeout });
-    const response = await client({ body: request });
-
-    if (response.code === 'invalid_request') {
-      const error = new Error(response.body);
-      error.name = 'RabbitMQAdapterError';
-
-      logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
-      throw error;
-    }
-
-    return response;
   }
 
   close() {
@@ -62,40 +58,34 @@ export class RabbitMQ {
 
 export default {
   async start() {
+    const arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
+    this.amqp = new AMQP();
+    this.amqp.arque = arque;
+    this.amqp.middlewares = this.middlewares;
+
     try {
-      const {
-        RABBIT_HOST = 'localhost',
-        RABBIT_VHOST = '',
-        RABBIT_USER = 'guest',
-        RABBIT_PASSWORD = 'guest',
-      } = process.env;
-
-      const routes = Routes.filter(route => route.type === 'amqp');
-      const arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
-
-      Adapter.RabbitMQ = new RabbitMQ(arque);
-
-      await Promise.all(_.map(routes, async (route) => {
-        const resource = _.get(Resources, route.resource);
-
-        if (!resource) {
-          logger(`Resource: ${route.resource} not found`);
-
-          const error = new Error(`Resource: ${route.resource} not found`);
-          error.name = 'RabbitMQAdapterError';
-
-          throw error;
-        }
-
-        await Adapter.RabbitMQ.subscribe(route.api, resource);
+      await Promise.all(_.map(this.routes, async ({ api, stack }) => {
+        await this.amqp.route(api, stack);
       }));
-    } catch (err) {
-      logger(err);
-      throw err;
-    }
+    } catch (err) { throw err; }
+
+    /* set amqp client */
+    Adapter.RabbitMQ = async (route, request, timeout = 6000) => {
+      const client = await arque.createClient({ job: route, timeout });
+      const response = await client({ body: request });
+
+      if (response.code === 'invalid_request') {
+        logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
+        const error = new Error(response.body);
+        error.name = 'RabbitMQAdapterError';
+        throw error;
+      }
+
+      return response;
+    };
   },
 
   async stop() {
-    Adapter.RabbitMQ.close();
+    this.amqp.close();
   },
 };

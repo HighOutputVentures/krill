@@ -1,0 +1,20 @@
+{
+  "apps": [
+    {
+      "name": "test-app",
+      "script": "./test/application/dist/index.js",
+      "watch": false,
+      "env": {
+        "KOA_HOST": "127.0.0.1",
+        "KOA_PORT": "8080",
+        "RABBIT_HOST": "127.0.0.1",
+        "RABBIT_VHOST": "",
+        "RABBIT_USER": "guest",
+        "RABBIT_PASSWORD": "guest",
+        "APP_MODE": "development",
+        "TZ": "UTC",
+        "DEBUG": "koa,rabbitmq,redis,mongoose,mysql*,redis"
+      }
+    }
+  ]
+}

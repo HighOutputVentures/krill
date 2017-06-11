@@ -29,4 +29,13 @@ export default {
       throw new Error(ajv.errorsText());
     }
   },
+
+  /* Ajv schema loader */
+  loadSchema(ajv, dir) {
+    const schemas = fs.existsSync(path.join(process.cwd(), dir)) ?
+      fs.readdirSync(path.join(process.cwd(), dir)) : [];
+    _.each(schemas, (schema) => {
+      ajv.addSchema(require(path.join(process.cwd(), dir, schema)).default, path.basename(schema, '.js'));
+    });
+  },
 };

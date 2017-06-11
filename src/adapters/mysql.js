@@ -1,7 +1,7 @@
 /* globals Adapter */
 import MQSP from 'mqsp';
 
-export const adapter = {
+export default {
   async start() {
     const {
       MYSQL_USER,

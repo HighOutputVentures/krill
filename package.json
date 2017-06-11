@@ -7,7 +7,8 @@
     "clean": "rm -rf dist/",
     "build": "npm run clean && babel --out-dir dist/ src/",
     "lint": "eslint src/",
-    "test": "npm run build && ava"
+    "test": "npm run build && npm run build-test-app && ava",
+    "build-test-app": "cd test/application && babel --out-dir dist/ src/"
   },
   "repository": {
     "type": "git",
@@ -54,15 +55,19 @@
     "eslint-plugin-babel": "^4.0.1",
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
-    "eslint-plugin-react": "^6.9.0"
+    "eslint-plugin-react": "^6.9.0",
+    "gulp": "^3.9.1",
+    "gulp-shell": "^0.6.3",
+    "supertest": "^3.0.0"
   },
   "ava": {
     "files": [
-      "test/*.js"
+      "test/*.test.js"
     ],
     "source": [
       "src/**/*.js"
     ],
+    "timeout": "50s",
     "serial": true,
     "failFast": true,
     "failWithoutAssertions": true,

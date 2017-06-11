@@ -1,7 +1,7 @@
 /* globals Adapter */
 import mongoose from 'mongoose';
 
-export const adapter = {
+export default {
   async start() {
     const {
       MONGO_USER = '',
