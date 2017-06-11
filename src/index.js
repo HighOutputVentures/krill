@@ -17,13 +17,6 @@ export default {
   async start() {
     this.config = {};
 
-    /* require router after global __dirname is set */
-    const router = require('./lib/router').default;
-
-    /* load policies and resources to the global object */
-    Util.require('policies', 'Policies');
-    Util.require('resources', 'Resources');
-
     /* require all the config files */
     _.each(['adapters', 'routes', 'middlewares', 'bootloaders'], (config) => {
       this.config[config] = require(path.join(process.cwd(), `config/${config}`)).default;
@@ -32,6 +25,12 @@ export default {
     /* load bootloaders */
     await Promise.all(_.map(this.config.bootloaders, async bootloader => bootloader()));
 
+    /* load policies and resources to the global object */
+    Util.require('policies', 'Policies');
+    Util.require('resources', 'Resources');
+
+    /* require router after global __dirname is set */
+    const router = require('./lib/router').default;
     const routed = router(this.config.routes, global.Resources, global.Policies);
 
     /* start adapters */
