@@ -17,6 +17,7 @@ export class AMQP {
   constructor() {
     this.arque = null;
     this.middlewares = [];
+    this.workers = [];
   }
 
   use(middleware) {
@@ -34,7 +35,7 @@ export class AMQP {
       compose(this.middlewares.slice(0).concat(resource)) :
       compose(this.middlewares.slice(0).concat([resource]));
 
-    await this.arque.createWorker({ job: name, concurrency: 500 }, async ({ body }) => {
+    const worker = await this.arque.createWorker({ job: name, concurrency: 500 }, async ({ body }) => {
       try {
         const ctx = { request: {}, response: {} };
         ctx.route = name;
@@ -47,9 +48,12 @@ export class AMQP {
         return { code: 'invalid_request', body: err.message };
       }
     });
+
+    this.workers.push(worker);
   }
 
-  close() {
+  async close() {
+    await Promise.all(_.map(this.workers, async (worker) => { await worker.close(); }));
     this.arque.close();
   }
 }
@@ -71,6 +75,9 @@ export default {
     Adapter.RabbitMQ = async (route, request, timeout = 6000) => {
       const client = await arque.createClient({ job: route, timeout });
       const response = await client({ body: request });
+
+      /* close client every request */
+      await client.close();
 
       if (response.code === 'invalid_request') {
         logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
