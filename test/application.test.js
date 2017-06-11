@@ -13,6 +13,9 @@ test.before(async() => {
     app = spawn('node', [`${__dirname}/application/dist/index`], { env });
     app.stdout.on('data', (data) => {
       data = data.toString();
+
+      console.log(data);
+
       if (data.indexOf('server started') !== -1) { resolve(); }
     });
   });

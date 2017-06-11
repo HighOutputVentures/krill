@@ -17,7 +17,6 @@ export class AMQP {
   constructor() {
     this.arque = null;
     this.middlewares = [];
-    this.ctx = { request: {}, response: {} };
   }
 
   use(middleware) {
@@ -32,13 +31,12 @@ export class AMQP {
    */
   async route(name, resource) {
     const stack = (Array.isArray(resource)) ?
-      compose(this.middlewares.slice().concat(resource)) :
-      compose(this.middlewares.slice().concat([resource]));
-
-    const ctx = Object.create(this.ctx);
+      compose(this.middlewares.slice(0).concat(resource)) :
+      compose(this.middlewares.slice(0).concat([resource]));
 
     await this.arque.createWorker({ job: name, concurrency: 500 }, async ({ body }) => {
       try {
+        const ctx = { request: {}, response: {} };
         ctx.route = name;
         ctx.request.body = body;
         await stack(ctx);
