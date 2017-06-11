@@ -9,8 +9,14 @@ global.Util = utilities;
 global.Adapter = {};
 global.Module = {};
 
+/* export adapter classes */
+export { AMQP } from './adapters/rabbitmq';
+export { Mailer } from './adapters/sendgrid';
+
 export default {
   async start() {
+    this.config = {};
+
     /* require router after global __dirname is set */
     const router = require('./lib/router').default;
 
@@ -19,25 +25,24 @@ export default {
     Util.require('resources', 'Resources');
 
     /* require all the config files */
-    this.adapters = require(path.join(process.cwd(), 'config/adapters')).default;
-    const routes = require(path.join(process.cwd(), 'config/routes')).default;
-    const middlewares = require(path.join(process.cwd(), 'config/middlewares')).default;
-    const bootloaders = require(path.join(process.cwd(), 'config/bootloaders')).default;
+    _.each(['adapters', 'routes', 'middlewares', 'bootloaders'], (config) => {
+      this.config[config] = require(path.join(process.cwd(), `config/${config}`)).default;
+    });
 
     /* load bootloaders */
-    await Promise.all(_.map(bootloaders, async bootloader => bootloader()));
+    await Promise.all(_.map(this.config.bootloaders, async bootloader => bootloader()));
 
-    const routed = router(routes, global.Resources, global.Policies);
+    const routed = router(this.config.routes, global.Resources, global.Policies);
 
     /* start adapters */
-    await Promise.all(_.map(this.adapters, async (adapter) => {
+    await Promise.all(_.map(this.config.adapters, async (adapter) => {
       Module[adapter] = require(`./adapters/${adapter}`).default;
 
       if (adapter === 'koa') {
-        Module[adapter].middlewares = middlewares.http;
+        Module[adapter].middlewares = this.config.middlewares.http;
         Module[adapter].routes = routed.filter(route => route.type === 'http');
       } else if (adapter === 'rabbitmq') {
-        Module[adapter].middlewares = middlewares.amqp;
+        Module[adapter].middlewares = this.config.middlewares.amqp;
         Module[adapter].routes = routed.filter(route => route.type === 'amqp');
       }
 
