@@ -13,7 +13,6 @@ const rpc = async (route, request, timeout = 6000) => {
   const response = await client({ body: request });
 
   if (response.code === 'invalid_request') {
-    logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
     const error = new Error(response.body);
     error.name = 'RabbitMQAdapterError';
     throw error;
