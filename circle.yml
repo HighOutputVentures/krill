@@ -1,4 +1,6 @@
 machine:
+  services:
+    - redis
   pre:
     - echo 'deb http://www.rabbitmq.com/debian/ testing main' | sudo tee /etc/apt/sources.list.d/rabbitmq.list
     - echo 'deb https://packages.erlang-solutions.com/ubuntu trusty contrib' | sudo tee /etc/apt/sources.list.d/erlang-solutions.list
