@@ -64,6 +64,7 @@ export default {
     this.amqp = new AMQP();
     this.amqp.arque = arque;
     this.amqp.middlewares = this.middlewares;
+    this.clients = {};
 
     try {
       await Promise.all(_.map(this.routes, async ({ api, stack }) => {
@@ -73,11 +74,11 @@ export default {
 
     /* set amqp client */
     Adapter.RabbitMQ = async (route, request, timeout = 6000) => {
-      const client = await arque.createClient({ job: route, timeout });
-      const response = await client({ body: request });
+      if (!this.clients[route]) {
+        this.clients[route] = await arque.createClient({ job: route, timeout });
+      }
 
-      /* close client every request */
-      await client.close();
+      const response = await this.clients[route]({ body: request });
 
       if (response.code === 'invalid_request') {
         logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
@@ -91,6 +92,9 @@ export default {
   },
 
   async stop() {
+    await Promise.all(_.map(_.keys(this.clients), async (route) => {
+      await this.clients[route].close();
+    }));
     this.amqp.close();
   },
 };
