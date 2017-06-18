@@ -22,8 +22,7 @@ export default {
     _.each(this.middlewares, middleware => app.use(middleware));
 
     /* load http routes */
-    const routes = this.routes.filter(route => route.type === 'http');
-    _.each(routes, (route) => {
+    _.each(this.routes, (route) => {
       const [method, url] = route.api.split(' ');
       router[method](url, compose(route.stack));
     });
