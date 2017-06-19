@@ -18,7 +18,7 @@ export default {
     this.config = {};
 
     /* require all the config files */
-    _.each(['adapters', 'routes', 'middlewares', 'bootloaders'], (config) => {
+    _.each(['adapters', 'routes', 'middlewares', 'bootloaders', 'services'], (config) => {
       this.config[config] = require(path.join(process.cwd(), `config/${config}`)).default;
     });
 
@@ -39,7 +39,11 @@ export default {
 
       if (adapter === 'koa') {
         Module[adapter].middlewares = this.config.middlewares.http;
-        Module[adapter].routes = routed.filter(route => route.type === 'http');
+        Module[adapter].routes = routed.filter((route) => {
+          const service = (route.service) ? _.includes(this.config.services, route.service) : true;
+
+          return (route.type === 'http') && service;
+        });
       } else if (adapter === 'rabbitmq') {
         Module[adapter].middlewares = this.config.middlewares.amqp;
         Module[adapter].routes = routed.filter(route => route.type === 'amqp');
