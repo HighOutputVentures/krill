@@ -7,7 +7,7 @@ const ajv = new Ajv();
 utilities.loadSchema(ajv, 'schema');
 
 export default function (routes, resources, policies) {
-  return _.reduce(routes, (reduced, { type, api, resource, policy = [], schema }) => {
+  return _.reduce(routes, (reduced, { type, service, api, resource, policy = [], schema }) => {
     const stack = [];
     const resourceObject = _.get(resources, resource);
 
@@ -45,7 +45,7 @@ export default function (routes, resources, policies) {
 
     /* stack resource object */
     stack.push(resourceObject);
-    reduced.push({ type, api, stack });
+    reduced.push({ type, service, api, stack });
 
     return reduced;
   }, []);
