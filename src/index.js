@@ -40,7 +40,7 @@ export default {
       if (adapter === 'koa') {
         Module[adapter].middlewares = this.config.middlewares.http;
         Module[adapter].routes = routed.filter((route) => {
-          const service = (route.service) ? _.includes(route.service, this.config.services) : true;
+          const service = (route.service) ? _.includes(this.config.services, route.service) : true;
 
           return (route.type === 'http') && service;
         });
