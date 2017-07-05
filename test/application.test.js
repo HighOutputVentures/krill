@@ -11,6 +11,7 @@ let app;
 test.before(async() => {
   await new Promise((resolve) => {
     app = spawn('node', [`${__dirname}/application/dist/index`], { env });
+    app.stderr.on('data', (data) => { console.log(data.toString()); });
     app.stdout.on('data', (data) => {
       data = data.toString();
 
