@@ -9,10 +9,6 @@ global.Util = utilities;
 global.Adapter = {};
 global.Module = {};
 
-/* export adapter classes */
-export { AMQP } from './adapters/rabbitmq';
-export { Mailer } from './adapters/sendgrid';
-
 export default {
   async start() {
     this.config = {};
