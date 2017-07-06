@@ -12,7 +12,7 @@ export default class extends EventEmitter {
 
   dispatch() {
     this.emit('start');
-    if (this.emails.length == 0) return this.emit('done');
+    if (this.emails.length === 0) { this.emit('done'); return; }
 
     let bulk = (this.prefetch > this.emails.length) ? this.emails.length : this.prefetch;
     let dispatched = this.emails.splice(0, bulk);
@@ -21,18 +21,18 @@ export default class extends EventEmitter {
 
     const next = () => {
       setTimeout(() => {
-        if (this.emails.length == 0) return this.emit('done');
+        if (this.emails.length === 0) { this.emit('done'); return; }
 
         bulk = (this.prefetch > this.emails.length) ? this.emails.length : this.prefetch;
         dispatched = this.emails.splice(0, bulk);
 
         this.emit('dispatch', { dispatched });
 
-        if (this.emails.length > 0) { return next(); }
+        if (this.emails.length > 0) { next(); return; }
 
         this.emit('done');
       }, this.delay * 1000);
-    }
+    };
     next();
   }
 }

@@ -8,13 +8,13 @@ const logger = debug('mailgun');
 const mailer = mailgun({ apiKey: MAILGUN_KEY, domain: 'identifi.com' });
 
 export default function (emails, prefetch, delay) {
-  if (APP_MODE == 'testing') return;
+  if (APP_MODE === 'testing') return;
 
   const queue = new MailQueue({ emails, prefetch, delay });
   queue.on('dispatch', (data) => {
     forEach(data.dispatch, (email) => {
-      mailer.messages.send(email, (err, body) => { if (err) logger(err); });
+      mailer.messages.send(email, (err) => { if (err) logger(err); });
     });
   });
   queue.dispatch();
-};
+}
