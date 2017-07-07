@@ -3,9 +3,9 @@ import debug from 'debug';
 import forEach from 'lodash/forEach';
 import MailQueue from './mailqueue';
 
-const { MAILGUN_KEY = '', APP_MODE = 'testing' } = process.env;
+const { MAILGUN_KEY = '', MAILGUN_DOMAIN = '', APP_MODE = 'testing' } = process.env;
 const logger = debug('mailgun');
-const mailer = mailgun({ apiKey: MAILGUN_KEY, domain: 'identifi.com' });
+const mailer = mailgun({ apiKey: MAILGUN_KEY, domain: MAILGUN_DOMAIN });
 
 export default function (emails, prefetch, delay) {
   if (APP_MODE === 'testing') return;
