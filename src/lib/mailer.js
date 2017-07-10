@@ -13,7 +13,11 @@ export default function (emails, prefetch, delay) {
   const queue = new MailQueue({ emails, prefetch, delay });
   queue.on('dispatch', (data) => {
     forEach(data.dispatch, (email) => {
-      mailer.messages.send(email, (err) => { if (err) logger(err); });
+      logger(`dispatching ${email}`);
+      mailer.messages.send(email, (err, body) => {
+        if (err) logger(err);
+        logger(body);
+      });
     });
   });
   queue.dispatch();
