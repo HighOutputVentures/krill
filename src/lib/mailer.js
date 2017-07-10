@@ -4,21 +4,35 @@ import forEach from 'lodash/forEach';
 import MailQueue from './mailqueue';
 
 const { MAILGUN_KEY = '', MAILGUN_DOMAIN = '', APP_MODE = 'testing' } = process.env;
+
 const logger = debug('mailgun');
 const mailer = mailgun({ apiKey: MAILGUN_KEY, domain: MAILGUN_DOMAIN });
 
-export default function (emails, prefetch, delay) {
+export default function (emails, prefetch, delay, callback) {
   if (APP_MODE === 'testing') return;
 
+  const error = [];
   const queue = new MailQueue({ emails, prefetch, delay });
+
   queue.on('dispatch', (data) => {
-    forEach(data.dispatch, (email) => {
-      logger(`dispatching ${email}`);
-      mailer.messages.send(email, (err, body) => {
-        if (err) logger(err);
+    forEach(data.dispatched, (email) => {
+      logger(`dispatching ${JSON.stringify(email)}`);
+      mailer.messages().send(email, (err, body) => {
+        if (err) {
+          logger(`status: ${err.statusCode}, message: ${err.message}`);
+          error.push(err);
+        }
+
         logger(body);
       });
     });
   });
+
+  queue.on('done', () => {
+    if (typeof callback === 'function') {
+      callback((error.length !== 0 ? undefined : error));
+    }
+  });
+
   queue.dispatch();
 }

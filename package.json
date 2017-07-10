@@ -65,7 +65,7 @@
   },
   "ava": {
     "files": [
-      "test/**/*.test.js"
+      "test/lib/**/*.js"
     ],
     "source": [
       "src/**/*.js"
