@@ -9,10 +9,13 @@ export default {
   async start() {
     Adapter.Amplitude = async (event) => {
       try {
-        await request('https://api.amplitude.com')
-          .post('/httpapi')
-          .set('content-type', 'application/x-www-form-urlencoded')
-          .data(`api_key=${AMPLITUDE_KEY}&event=${JSON.stringify(event)}`);
+        await request({
+          uri: 'https://api.amplitude.com/httpapi',
+          method: 'POST',
+          headers: { 'content-type': 'application/x-www-form-urlencoded' },
+          body: `api_key=${AMPLITUDE_KEY}&event=${JSON.stringify(event)}`,
+          json: true,
+        });
       } catch (err) {
         logger(`event: ${JSON.stringify(event)}, ${err.message}`);
         const error = new Error(err.message);
