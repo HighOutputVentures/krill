@@ -3,7 +3,7 @@ env:
   node: true
 extends:
   - 'eslint:recommended'
-  - 'airbnb'
+  - 'airbnb-base'
 parser: 'babel-eslint'
 parserOptions:
   sourceType: module
