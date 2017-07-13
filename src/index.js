@@ -1,13 +1,9 @@
 /* eslint global-require: off, import/no-dynamic-require: off */
-/* globals Module, Util */
+/* globals Module */
 import _ from 'lodash';
 import path from 'path';
 import Promise from 'bluebird';
 import utilities from './lib/utilities';
-
-global.Util = utilities;
-global.Adapter = {};
-global.Module = {};
 
 export default {
   async start() {
@@ -22,8 +18,8 @@ export default {
     await Promise.all(_.map(this.config.bootloaders, async bootloader => bootloader()));
 
     /* load policies and resources to the global object */
-    Util.require('policies', 'Policies');
-    Util.require('resources', 'Resources');
+    utilities.require('policies', 'Policies');
+    utilities.require('resources', 'Resources');
 
     /* require router after global __dirname is set */
     const router = require('./lib/router').default;

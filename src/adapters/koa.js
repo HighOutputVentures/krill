@@ -1,4 +1,3 @@
-/* eslint  import/no-dynamic-require: off */
 import _ from 'lodash';
 import Koa from 'koa';
 import Router from 'koa-router';
@@ -31,10 +30,15 @@ export default {
     app.use(router.routes());
     app.use(router.allowedMethods());
 
-    try { this.server = app.listen(KOA_PORT, KOA_HOST); } catch (err) { throw err; }
+    this.server = app.listen(KOA_PORT, KOA_HOST);
   },
 
   async stop() {
-    await new Promise((resolve) => { this.server.close(resolve); });
+    await new Promise((resolve) => {
+      if (this.server) {
+        this.server.close(resolve);
+      }
+      resolve();
+    });
   },
 };
