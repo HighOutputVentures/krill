@@ -6,21 +6,17 @@ class Analytics {
   }
 
   async identity(users) {
-    await request({
-      uri: 'https://heapanalytics.com/api/add_user_properties',
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: { app_id: this.appId, users },
-    });
+    await request('https://heapanalytics.com')
+      .post('/api/add_user_properties')
+      .set('content-type', 'application/json')
+      .data({ app_id: this.appId, users });
   }
 
   async track(events) {
-    await request({
-      uri: 'https://heapanalytics.com/api/track',
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: { app_id: this.appId, events },
-    });
+    await request('https://heapanalytics.com')
+      .post('/api/track')
+      .set('content-type', 'application/json')
+      .data({ app_id: this.appId, events });
   }
 }
 
