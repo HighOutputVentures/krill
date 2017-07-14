@@ -1,4 +1,7 @@
 import request from 'request-promise';
+import debug from 'debug';
+
+const logger = debug('analytics');
 
 class Analytics {
   constructor(appId) {
@@ -6,6 +9,7 @@ class Analytics {
   }
 
   async identity(users) {
+    logger(JSON.stringify({ app_id: this.appId, users }));
     await request({
       uri: 'https://heapanalytics.com/api/add_user_properties',
       method: 'POST',
@@ -16,6 +20,7 @@ class Analytics {
   }
 
   async track(events) {
+    logger(JSON.stringify({ app_id: this.appId, events }));
     await request({
       uri: 'https://heapanalytics.com/api/track',
       method: 'POST',
