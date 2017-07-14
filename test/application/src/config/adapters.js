@@ -1,1 +1,1 @@
-export default ['rabbitmq', 'koa', 'mysql', 'redis', 'mongoose'];
+export default ['rabbitmq', 'koa', 'mysql', 'redis'];
