@@ -9,25 +9,27 @@ class Analytics {
   }
 
   async identity(users) {
-    logger(JSON.stringify({ app_id: this.appId, users }));
-    await request({
-      uri: 'https://heapanalytics.com/api/add_user_properties',
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ app_id: this.appId, users }),
-      json: true,
-    });
+    try {
+      logger(JSON.stringify({ app_id: this.appId, users }));
+      await request({
+        uri: 'https://heapanalytics.com/api/add_user_properties',
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ app_id: this.appId, users }),
+      });
+    } catch (err) { logger(err); }
   }
 
   async track(events) {
-    logger(JSON.stringify({ app_id: this.appId, events }));
-    await request({
-      uri: 'https://heapanalytics.com/api/track',
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ app_id: this.appId, events }),
-      json: true,
-    });
+    try {
+      logger(JSON.stringify({ app_id: this.appId, events }));
+      await request({
+        uri: 'https://heapanalytics.com/api/track',
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ app_id: this.appId, events }),
+      });
+    } catch (err) { logger(err); }
   }
 }
 
