@@ -1,7 +1,0 @@
-src/
-test/
-circle.yml
-yarn.lock
-.babelrc
-.eslintrc
-.env
