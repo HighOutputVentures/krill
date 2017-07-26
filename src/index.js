@@ -30,7 +30,7 @@ export default class {
     /* setup routes */
     const routed = router(this.routes, this.resources, this.policies);
 
-    if (routed.filter(route => route.type === 'http')) {
+    if (routed.filter(route => route.type === 'http').length !== 0) {
       const koa = new Koa();
       koa.middlewares = this.middlewares.http;
       koa.routes = routed.filter((route) => {
@@ -40,7 +40,7 @@ export default class {
       });
     }
 
-    if (routed.filter(route => route.type === 'amqp')) {
+    if (routed.filter(route => route.type === 'amqp').length !== 0) {
       const rabbitmq = new RabbitMQ();
       rabbitmq.middlewares = this.middlewares.amqp;
       rabbitmq.routes = routed.filter(route => route.type === 'amqp');
