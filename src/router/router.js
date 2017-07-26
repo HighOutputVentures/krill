@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import Ajv from 'ajv';
-import utilities from './utilities';
+import { loadSchema } from '../lib/utilities';
 
 /* load all Ajv Schema*/
 const ajv = new Ajv();
-utilities.loadSchema(ajv, 'schema');
+loadSchema(ajv, 'schema');
 
 export default function (routes, resources, policies) {
   return _.reduce(routes, (reduced, { type, service, api, resource, policy = [], schema }) => {

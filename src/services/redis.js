@@ -15,7 +15,3 @@ export default {
 
   async stop() { Adapter.Redis.quit(); },
 };
-
-export default function () {
-  return globals.services.redis;
-}

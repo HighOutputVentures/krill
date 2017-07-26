@@ -9,10 +9,14 @@ const { KOA_PORT = '8080', KOA_HOST = '127.0.0.1' } = process.env;
 const app = new Koa();
 const router = new Router();
 
-export default {
-  async start() {
+export default class {
+  constructor() {
     this.server = null;
+    this.middlewares = [];
+    this.routes = [];
+  }
 
+  async start() {
     /* load koa modules */
     app.use(logger());
     app.use(parser({ extendTypes: { json: ['application/vnd.api+json'] } }));
@@ -31,7 +35,7 @@ export default {
     app.use(router.allowedMethods());
 
     this.server = app.listen(KOA_PORT, KOA_HOST);
-  },
+  }
 
   async stop() {
     await new Promise((resolve) => {
@@ -40,5 +44,5 @@ export default {
       }
       resolve();
     });
-  },
-};
+  }
+}

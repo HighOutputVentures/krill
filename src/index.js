@@ -1,29 +1,32 @@
 /* eslint global-require: off, import/no-dynamic-require: off */
 /* globals Module */
 import _ from 'lodash';
-import path from 'path';
 import Promise from 'bluebird';
-import utilities from './lib/utilities';
+import { load } from './lib/utilities';
+import router from './router';
 
-export default {
+export default class {
+  constructor(opts) {
+    const {
+      routes,
+      middlewares,
+      bootloaders,
+    } = opts;
+
+    this.routes = routes || [];
+    this.middlewares = middlewares || [];
+    this.bootloaders = bootloaders || [];
+  }
+
   async start() {
-    this.config = {};
-
-    /* require all the config files */
-    _.each(['adapters', 'routes', 'middlewares', 'bootloaders', 'services'], (config) => {
-      this.config[config] = require(path.join(process.cwd(), `config/${config}`)).default;
-    });
-
     /* load bootloaders */
-    await Promise.all(_.map(this.config.bootloaders, async bootloader => bootloader()));
+    await Promise.all(_.map(this.bootloaders, async bootloader => bootloader()));
 
     /* load policies and resources to the global object */
-    utilities.require('policies', 'Policies');
-    utilities.require('resources', 'Resources');
+    load('policies', 'Policies');
+    load('resources', 'Resources');
 
-    /* require router after global __dirname is set */
-    const router = require('./lib/router').default;
-    const routed = router(this.config.routes, global.Resources, global.Policies);
+    const routed = router(this.routes, global.Resources, global.Policies);
 
     /* start adapters */
     await Promise.all(_.map(this.config.adapters, async (adapter) => {
@@ -45,11 +48,11 @@ export default {
     }));
 
     console.log('server started...');
-  },
+  }
 
   async stop() {
     await Promise.all(_.map(this.adapters, async (adapter) => {
       await Module[adapter].stop();
     }));
-  },
-};
+  }
+}
