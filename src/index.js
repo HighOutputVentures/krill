@@ -2,7 +2,6 @@
 /* globals Module */
 import _ from 'lodash';
 import Promise from 'bluebird';
-import { load } from './lib/utilities';
 import router from './router';
 
 export default class {
@@ -11,22 +10,22 @@ export default class {
       routes,
       middlewares,
       bootloaders,
+      resources,
+      policies,
     } = opts;
 
     this.routes = routes || [];
     this.middlewares = middlewares || [];
     this.bootloaders = bootloaders || [];
+    this.resources = resources || {};
+    this.policies = policies || {};
   }
 
   async start() {
     /* load bootloaders */
     await Promise.all(_.map(this.bootloaders, async bootloader => bootloader()));
 
-    /* load policies and resources to the global object */
-    load('policies', 'Policies');
-    load('resources', 'Resources');
-
-    const routed = router(this.routes, global.Resources, global.Policies);
+    const routed = router(this.routes, this.resources, this.policies);
 
     /* start adapters */
     await Promise.all(_.map(this.config.adapters, async (adapter) => {
