@@ -3,6 +3,8 @@
 import _ from 'lodash';
 import Promise from 'bluebird';
 import router from './router';
+import Koa from './services/koa';
+import RabbitMQ from './services/rabbitmq';
 
 export default class {
   constructor(opts) {
@@ -25,26 +27,24 @@ export default class {
     /* load bootloaders */
     await Promise.all(_.map(this.bootloaders, async bootloader => bootloader()));
 
+    /* setup routes */
     const routed = router(this.routes, this.resources, this.policies);
 
-    /* start adapters */
-    await Promise.all(_.map(this.config.adapters, async (adapter) => {
-      Module[adapter] = require(`./adapters/${adapter}`).default;
+    if (routed.filter(route => route.type === 'http')) {
+      const koa = new Koa();
+      koa.middlewares = this.middlewares.http;
+      koa.routes = routed.filter((route) => {
+        const service = (route.service) ?
+          _.includes(this.config.services, route.service) : true;
+        return (route.type === 'http') && service;
+      });
+    }
 
-      if (adapter === 'koa') {
-        Module[adapter].middlewares = this.config.middlewares.http;
-        Module[adapter].routes = routed.filter((route) => {
-          const service = (route.service) ? _.includes(this.config.services, route.service) : true;
-
-          return (route.type === 'http') && service;
-        });
-      } else if (adapter === 'rabbitmq') {
-        Module[adapter].middlewares = this.config.middlewares.amqp;
-        Module[adapter].routes = routed.filter(route => route.type === 'amqp');
-      }
-
-      await Module[adapter].start();
-    }));
+    if (routed.filter(route => route.type === 'amqp')) {
+      const rabbitmq = new RabbitMQ();
+      rabbitmq.middlewares = this.middlewares.amqp;
+      rabbitmq.routes = routed.filter(route => route.type === 'amqp');
+    }
 
     console.log('server started...');
   }

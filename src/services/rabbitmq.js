@@ -61,14 +61,16 @@ export class AMQP {
   }
 }
 
-export default {
-  async start() {
-    const arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
+export default class RabbitMQ {
+  constructor() {
+    this.arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
     this.amqp = new AMQP();
-    this.amqp.arque = arque;
+    this.amqp.arque = this.arque;
     this.amqp.middlewares = this.middlewares;
     this.clients = {};
+  }
 
+  async start() {
     try {
       await Promise.all(_.map(this.routes, async ({ api, stack }) => {
         await this.amqp.route(api, stack);
@@ -78,7 +80,7 @@ export default {
     /* set amqp client */
     Adapter.RabbitMQ = async (route, request, timeout = 6000) => {
       if (!this.clients[route]) {
-        this.clients[route] = await arque.createClient({ job: route, timeout });
+        this.clients[route] = await this.arque.createClient({ job: route, timeout });
       }
 
       const response = await this.clients[route]({ body: request });
@@ -92,12 +94,13 @@ export default {
 
       return response;
     };
-  },
+  }
 
   async stop() {
     await Promise.all(_.map(_.keys(this.clients), async (route) => {
       await this.clients[route].close();
     }));
     this.amqp.close();
-  },
-};
+  }
+}
+
