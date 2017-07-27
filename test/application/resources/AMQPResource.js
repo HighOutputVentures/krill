@@ -1,3 +1,5 @@
+import delay from '../delay';
+
 export const AMQPResource = {
   async create(ctx) {
     const time = 100 * Math.random();

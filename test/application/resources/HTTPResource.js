@@ -1,3 +1,5 @@
+import delay from '../delay';
+
 export const HTTPResource = {
   async post(ctx) {
     const time = 100 * Math.random();
