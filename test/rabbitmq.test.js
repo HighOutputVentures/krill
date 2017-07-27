@@ -2,9 +2,9 @@ import test from 'ava';
 import _ from 'lodash';
 import uuid from 'uuid';
 import Arque from 'arque';
-import { AMQP } from '../src/adapters/rabbitmq';
+import { AMQP } from '../src/services/rabbitmq';
 
-const arque = new Arque(`amqp://localhost/`);
+const arque = new Arque('amqp://localhost/');
 const amqp = new AMQP();
 amqp.arque = arque;
 

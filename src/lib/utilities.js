@@ -3,17 +3,18 @@ import path from 'path';
 import _ from 'lodash';
 import Ajv from 'ajv';
 
-export function load(dir, namespace) {
+export function load(dir) {
+  const object = {};
+
   const files = fs.existsSync(path.join(process.cwd(), dir)) ?
     fs.readdirSync(path.join(process.cwd(), dir)) : [];
-  _.each(files, (file) => {
-    const module = require(path.join(process.cwd(), dir, file));
-    if (namespace) {
-      global[namespace] = _.merge(global[namespace] || {}, module);
-    } else {
-      _.merge(global, module);
-    }
-  });
+
+  _.each(files, file => _.merge(
+    object,
+    require(path.join(process.cwd(), dir, file)),
+  ));
+
+  return object;
 }
 
 export function validate(schema, json) {
