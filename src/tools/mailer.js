@@ -6,11 +6,11 @@ import MailQueue from '../lib/mail-queue';
 const { MAILGUN_KEY = '', MAILGUN_DOMAIN = '', APP_MODE = 'testing' } = process.env;
 
 const logger = debug('mailgun');
-const mailer = mailgun({ apiKey: MAILGUN_KEY, domain: MAILGUN_DOMAIN });
 
 export default function (emails, prefetch, delay, callback) {
   if (APP_MODE === 'testing') return;
 
+  const mailer = mailgun({ apiKey: MAILGUN_KEY, domain: MAILGUN_DOMAIN });
   const error = [];
   const queue = new MailQueue({ emails, prefetch, delay });
 
