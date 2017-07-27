@@ -7,9 +7,8 @@
     "clean": "rm -rf dist/",
     "build": "npm run clean && babel --out-dir . src/",
     "lint": "eslint .",
-    "test": "npm run build && npm run build-test-app && ava",
-    "install": "babel --out-dir . src/",
-    "build-test-app": "cd test/application && babel --out-dir dist/ src/"
+    "test": "nyc ava",
+    "install": "babel --out-dir . src/"
   },
   "repository": {
     "type": "git",
@@ -60,6 +59,7 @@
     "eslint-plugin-import": "^2.7.0",
     "gulp": "^3.9.1",
     "gulp-shell": "^0.6.3",
+    "nyc": "^11.0.3",
     "supertest": "^3.0.0"
   },
   "ava": {
