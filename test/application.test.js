@@ -8,7 +8,7 @@ const request = supertest('http://localhost:8080');
 const env = _.clone(process.env);
 let app;
 
-test.before(async() => {
+test.before(async () => {
   await new Promise((resolve) => {
     app = spawn('node', [`${__dirname}/application/dist/index`], { env });
     app.stderr.on('data', (data) => { console.log(data.toString()); });
@@ -22,11 +22,11 @@ test.before(async() => {
   });
 });
 
-test.after(async() => {
+test.after(async () => {
   app.kill('SIGTERM');
 });
 
-test('benchmark http endpoints', async(t) => {
+test('benchmark http endpoints', async (t) => {
 
   await Promise.all(_.times(200, async () => {
     await request[_.sample(['post', 'get', 'patch', 'delete'])]('/endpoint')

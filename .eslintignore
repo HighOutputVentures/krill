@@ -1,0 +1,11 @@
+.circleci
+.idea
+/core
+/lib
+/router
+/services
+/tools
+index.js
+package-lock.json
+*.md
+**/*.md

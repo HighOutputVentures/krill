@@ -22,5 +22,6 @@ jobs:
           key: dependencies-{{ checksum "package-lock.json" }}
           paths:
             - node_modules
+      - run: npm run lint
       - run: npm run build
       - run: npm test

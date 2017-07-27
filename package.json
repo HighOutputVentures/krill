@@ -6,7 +6,7 @@
   "scripts": {
     "clean": "rm -rf dist/",
     "build": "npm run clean && babel --out-dir . src/",
-    "lint": "eslint src/",
+    "lint": "eslint .",
     "test": "npm run build && npm run build-test-app && ava",
     "install": "babel --out-dir . src/",
     "build-test-app": "cd test/application && babel --out-dir dist/ src/"
