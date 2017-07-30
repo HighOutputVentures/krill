@@ -71,7 +71,6 @@
       "src/**/*.js"
     ],
     "timeout": "50s",
-    "serial": true,
     "failFast": true,
     "failWithoutAssertions": true,
     "require": [
