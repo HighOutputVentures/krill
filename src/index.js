@@ -26,7 +26,9 @@ export default class {
     this.rabbitmq = null;
   }
 
-  async start() {
+  async start(opts) {
+    const { koa = {}, rabbitmq = {} } = opts || {};
+
     /* load bootloaders */
     await Promise.all(_.map(this.bootloaders, async bootloader => bootloader()));
 
@@ -34,7 +36,10 @@ export default class {
     const routed = router(this.routes, this.resources, this.policies);
 
     if (routed.filter(route => route.type === 'http').length !== 0) {
-      this.koa = new Koa();
+      this.koa = new Koa({
+        host: koa.host,
+        port: koa.port,
+      });
       this.koa.middlewares = this.middlewares.http || [];
       this.koa.routes = routed.filter((route) => {
         const service = (route.service) ?
@@ -45,7 +50,13 @@ export default class {
     }
 
     if (routed.filter(route => route.type === 'amqp').length !== 0) {
-      this.rabbitmq = new RabbitMQ();
+      this.rabbitmq = new RabbitMQ({
+        host: rabbitmq.host,
+        vhost: rabbitmq.vhost,
+        port: rabbitmq.port,
+        username: rabbitmq.username,
+        password: rabbitmq.password,
+      });
       this.rabbitmq.middlewares = this.middlewares.amqp || [];
       this.rabbitmq.routes = routed.filter(route => route.type === 'amqp');
       this.rabbitmq.start();

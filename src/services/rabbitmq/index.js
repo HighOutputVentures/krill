@@ -5,16 +5,17 @@ import Arque from 'arque';
 import compose from './compose';
 
 const logger = debug('rabbitmq');
-const {
-  RABBIT_HOST = 'localhost',
-  RABBIT_VHOST = '',
-  RABBIT_USER = 'guest',
-  RABBIT_PASSWORD = 'guest',
-} = process.env;
-
 export default class {
-  constructor() {
-    this.arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
+  constructor(opts) {
+    const {
+      host = 'localhost',
+      vhost = '',
+      port = '5672',
+      username = 'guest',
+      password = 'guest',
+    } = opts || {};
+
+    this.arque = new Arque(`amqp://${username}:${password}@${host}:${port}/${vhost}`);
     this.middlewares = [];
     this.clients = {};
     this.routes = [];

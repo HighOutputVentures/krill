@@ -5,15 +5,18 @@ import compose from 'koa-compose';
 import parser from 'koa-bodyparser';
 import logger from 'koa-logger';
 
-const { KOA_PORT = '8080', KOA_HOST = '127.0.0.1' } = process.env;
 const app = new Koa();
 const router = new Router();
 
 export default class {
-  constructor() {
+  constructor(opts) {
+    const { host = '127.0.0.1', port = '8080' } = opts || {};
+
     this.server = null;
     this.middlewares = [];
     this.routes = [];
+    this.host = host;
+    this.port = port;
   }
 
   async start() {
@@ -34,7 +37,7 @@ export default class {
     app.use(router.routes());
     app.use(router.allowedMethods());
 
-    this.server = app.listen(KOA_PORT, KOA_HOST);
+    this.server = app.listen(this.port, this.host);
   }
 
   async stop() {
