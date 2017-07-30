@@ -7,7 +7,7 @@ import bootloaders from './config/bootloaders';
 import middlewares from './config/middlewares';
 import routes from './config/routes';
 import services from './config/services';
-import { load } from '../../src/lib/utilities';
+import { load } from '../../src/utilities';
 
 process.chdir(__dirname);
 

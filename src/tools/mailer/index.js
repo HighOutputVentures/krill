@@ -1,7 +1,7 @@
 import mailgun from 'mailgun-js';
 import debug from 'debug';
 import forEach from 'lodash/forEach';
-import MailQueue from '../lib/mail-queue';
+import MailQueue from './queue';
 
 const { MAILGUN_KEY = '', MAILGUN_DOMAIN = '', APP_MODE = 'testing' } = process.env;
 

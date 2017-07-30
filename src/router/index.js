@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import Ajv from 'ajv';
-import { loadSchema } from '../lib/utilities';
+import { loadSchema } from '../utilities';
 
 /* load all Ajv Schema*/
 const ajv = new Ajv();

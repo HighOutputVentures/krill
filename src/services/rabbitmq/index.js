@@ -2,7 +2,7 @@ import Promise from 'bluebird';
 import _ from 'lodash';
 import debug from 'debug';
 import Arque from 'arque';
-import compose from '../lib/compose';
+import compose from './compose';
 
 const logger = debug('rabbitmq');
 const {
@@ -12,7 +12,7 @@ const {
   RABBIT_PASSWORD = 'guest',
 } = process.env;
 
-export default class RabbitMQ {
+export default class {
   constructor() {
     this.arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
     this.middlewares = [];

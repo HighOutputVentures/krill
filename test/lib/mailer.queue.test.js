@@ -1,6 +1,6 @@
 import test from 'ava';
 import times from 'lodash/times';
-import MailQueue from '../../src/lib/mail-queue';
+import MailQueue from '../../src/tools/mailer/queue';
 
 test.cb('Array size: 20, prefetch: 5', (t) => {
   const emails = [];
