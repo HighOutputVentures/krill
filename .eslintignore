@@ -6,6 +6,7 @@
 /services
 /tools
 /index.js
+/utilities.js
 package-lock.json
 *.md
 **/*.md
