@@ -18,6 +18,7 @@ export default class {
     this.middlewares = [];
     this.clients = {};
     this.routes = [];
+    this.workers = [];
   }
 
   use(middleware) {
@@ -52,7 +53,7 @@ export default class {
 
   async start() {
     await Promise.all(_.map(this.routes, async ({ api, stack }) => {
-      await this.amqp.route(api, stack);
+      await this.route(api, stack);
     }));
   }
 

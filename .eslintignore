@@ -5,7 +5,7 @@
 /router
 /services
 /tools
-index.js
+/index.js
 package-lock.json
 *.md
 **/*.md

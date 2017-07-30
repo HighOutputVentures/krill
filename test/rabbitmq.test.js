@@ -15,7 +15,6 @@ test.before(async () => {
     const start = Date.now();
     await next();
     ctx.benchmark = Date.now() - start;
-    console.log(`route: ${ctx.route}, benchmark: ${ctx.benchmark}ms`);
   });
 });
 
@@ -81,4 +80,4 @@ test('rabbitmq, given a timeout request', async (t) => {
   t.is(error.message, 'Job timeout.');
 });
 
-test.after(async () => { amqp.close(); });
+test.after(async () => { amqp.stop(); });

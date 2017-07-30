@@ -1,5 +1,3 @@
-/* eslint global-require: off, import/no-dynamic-require: off */
-/* globals Module */
 import _ from 'lodash';
 import Promise from 'bluebird';
 import router from './router';
@@ -23,6 +21,9 @@ export default class {
     this.middlewares = middlewares || {};
     this.resources = resources || {};
     this.policies = policies || {};
+
+    this.koa = null;
+    this.rabbitmq = null;
   }
 
   async start() {
@@ -33,29 +34,26 @@ export default class {
     const routed = router(this.routes, this.resources, this.policies);
 
     if (routed.filter(route => route.type === 'http').length !== 0) {
-      const koa = new Koa();
-      koa.middlewares = this.middlewares.http || [];
-      koa.routes = routed.filter((route) => {
+      this.koa = new Koa();
+      this.koa.middlewares = this.middlewares.http || [];
+      this.koa.routes = routed.filter((route) => {
         const service = (route.service) ?
           _.includes(this.services, route.service) : true;
         return (route.type === 'http') && service;
       });
-      koa.start();
+      this.koa.start();
     }
 
     if (routed.filter(route => route.type === 'amqp').length !== 0) {
-      const rabbitmq = new RabbitMQ();
-      rabbitmq.middlewares = this.middlewares.amqp || [];
-      rabbitmq.routes = routed.filter(route => route.type === 'amqp');
-      rabbitmq.start();
+      this.rabbitmq = new RabbitMQ();
+      this.rabbitmq.middlewares = this.middlewares.amqp || [];
+      this.rabbitmq.routes = routed.filter(route => route.type === 'amqp');
+      this.rabbitmq.start();
     }
-
-    console.log('server started...');
   }
 
   async stop() {
-    await Promise.all(_.map(this.adapters, async (adapter) => {
-      await Module[adapter].stop();
-    }));
+    if (!this.koa) this.koa.stop();
+    if (!this.rabbitmq) this.rabbitmq.stop();
   }
 }
