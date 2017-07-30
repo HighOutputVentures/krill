@@ -6,13 +6,17 @@ import Krill from '../../src';
 import bootloaders from './config/bootloaders';
 import middlewares from './config/middlewares';
 import routes from './config/routes';
+import services from './config/services';
 import { load } from '../../src/lib/utilities';
+
+process.chdir(__dirname);
 
 const request = supertest('http://localhost:8080');
 const krill = new Krill({
   bootloaders,
   middlewares,
   routes,
+  services,
   resources: load('resources'),
   policies: load('policies'),
 });

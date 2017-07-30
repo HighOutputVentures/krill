@@ -5,7 +5,6 @@ import Ajv from 'ajv';
 
 export function load(dir) {
   const object = {};
-
   const files = fs.existsSync(path.join(process.cwd(), dir)) ?
     fs.readdirSync(path.join(process.cwd(), dir)) : [];
 

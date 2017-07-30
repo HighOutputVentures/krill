@@ -1,4 +1,3 @@
-/* globals Adapter */
 import Promise from 'bluebird';
 import _ from 'lodash';
 import debug from 'debug';
@@ -13,11 +12,11 @@ const {
   RABBIT_PASSWORD = 'guest',
 } = process.env;
 
-export class AMQP {
+export default class RabbitMQ {
   constructor() {
-    this.arque = null;
+    this.arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
     this.middlewares = [];
-    this.workers = [];
+    this.clients = {};
   }
 
   use(middleware) {
@@ -25,11 +24,6 @@ export class AMQP {
     return this;
   }
 
-  /**
-   * Creates a listener for rabbit based requests
-   * @param {string} route
-   * @param {function} resource
-   */
   async route(name, resource) {
     const stack = (Array.isArray(resource)) ?
       compose(this.middlewares.slice(0).concat(resource)) :
@@ -55,52 +49,19 @@ export class AMQP {
     this.workers.push(worker);
   }
 
-  async close() {
-    await Promise.all(_.map(this.workers, async (worker) => { await worker.close(); }));
-    this.arque.close();
-  }
-}
-
-export default class RabbitMQ {
-  constructor() {
-    this.arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
-    this.amqp = new AMQP();
-    this.amqp.arque = this.arque;
-    this.amqp.middlewares = this.middlewares;
-    this.clients = {};
-  }
-
   async start() {
-    try {
-      await Promise.all(_.map(this.routes, async ({ api, stack }) => {
-        await this.amqp.route(api, stack);
-      }));
-    } catch (err) { throw err; }
-
-    /* set amqp client */
-    Adapter.RabbitMQ = async (route, request, timeout = 6000) => {
-      if (!this.clients[route]) {
-        this.clients[route] = await this.arque.createClient({ job: route, timeout });
-      }
-
-      const response = await this.clients[route]({ body: request });
-
-      if (response.code === 'invalid_request') {
-        logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);
-        const error = new Error(response.body);
-        error.name = 'RabbitMQAdapterError';
-        throw error;
-      }
-
-      return response;
-    };
+    await Promise.all(_.map(this.routes, async ({ api, stack }) => {
+      await this.amqp.route(api, stack);
+    }));
   }
 
   async stop() {
     await Promise.all(_.map(_.keys(this.clients), async (route) => {
       await this.clients[route].close();
     }));
-    this.amqp.close();
+
+    await Promise.all(_.map(this.workers, async (worker) => { await worker.close(); }));
+
+    this.arque.close();
   }
 }
-

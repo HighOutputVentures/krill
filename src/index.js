@@ -14,11 +14,13 @@ export default class {
       bootloaders,
       resources,
       policies,
+      services,
     } = opts;
 
     this.routes = routes || [];
-    this.middlewares = middlewares || [];
     this.bootloaders = bootloaders || [];
+    this.services = services || [];
+    this.middlewares = middlewares || {};
     this.resources = resources || {};
     this.policies = policies || {};
   }
@@ -32,18 +34,20 @@ export default class {
 
     if (routed.filter(route => route.type === 'http').length !== 0) {
       const koa = new Koa();
-      koa.middlewares = this.middlewares.http;
+      koa.middlewares = this.middlewares.http || [];
       koa.routes = routed.filter((route) => {
         const service = (route.service) ?
-          _.includes(this.config.services, route.service) : true;
+          _.includes(this.services, route.service) : true;
         return (route.type === 'http') && service;
       });
+      koa.start();
     }
 
     if (routed.filter(route => route.type === 'amqp').length !== 0) {
       const rabbitmq = new RabbitMQ();
-      rabbitmq.middlewares = this.middlewares.amqp;
+      rabbitmq.middlewares = this.middlewares.amqp || [];
       rabbitmq.routes = routed.filter(route => route.type === 'amqp');
+      rabbitmq.start();
     }
 
     console.log('server started...');
