@@ -1,16 +1,18 @@
+/* globals krill */
 import Arque from 'arque';
+import debug from 'debug';
 
-global.krill = {};
-if (!global.krill.arque) {
-  global.krill.arque = new Arque('');
-}
+if (!global.krill) global.krill = {};
+if (!global.krill.arque) global.krill.arque = new Arque('');
 
-export function async (route, request, timeout = 6000) {
-  if (!this.clients[route]) {
-    this.clients[route] = await this.arque.createClient({ job: route, timeout });
+const logger = debug('rabbitmq');
+
+export default async function (route, request, timeout = 6000) {
+  if (!krill.clients[route]) {
+    krill.clients[route] = await krill.arque.createClient({ job: route, timeout });
   }
 
-  const response = await this.clients[route]({ body: request });
+  const response = await krill.clients[route]({ body: request });
 
   if (response.code === 'invalid_request') {
     logger(`route: ${route}, request: ${JSON.stringify(request, null, 2)}, error: ${response.body}`);

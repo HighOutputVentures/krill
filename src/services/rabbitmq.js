@@ -17,6 +17,7 @@ export default class RabbitMQ {
     this.arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}/${RABBIT_VHOST}`);
     this.middlewares = [];
     this.clients = {};
+    this.routes = [];
   }
 
   use(middleware) {
@@ -56,12 +57,7 @@ export default class RabbitMQ {
   }
 
   async stop() {
-    await Promise.all(_.map(_.keys(this.clients), async (route) => {
-      await this.clients[route].close();
-    }));
-
     await Promise.all(_.map(this.workers, async (worker) => { await worker.close(); }));
-
     this.arque.close();
   }
 }
