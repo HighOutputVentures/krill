@@ -7,5 +7,6 @@ node_modules/
 /services
 /tools
 /index.js
+/utilities.js
 *.log
 **/dist/
