@@ -1,0 +1,27 @@
+---
+version: 2
+jobs:
+  build:
+    working_directory: ~/krill
+    docker:
+      - image: circleci/node:boron
+      - image: rabbitmq:3.6.10-alpine
+    steps:
+      - checkout
+      - run: echo $CIRCLE_SHA1 > .circle-sha
+      - save_cache:
+          key: repository-{{ checksum ".circle-sha" }}
+          paths:
+            - .
+      - restore_cache:
+          key: repository-{{ checksum ".circle-sha" }}
+      - restore_cache:
+          key: dependencies-{{ checksum "package-lock.json" }}
+      - run: npm install
+      - save_cache:
+          key: dependencies-{{ checksum "package-lock.json" }}
+          paths:
+            - node_modules
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run test-coverage

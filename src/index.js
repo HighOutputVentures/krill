@@ -1,59 +1,70 @@
-/* eslint global-require: off, import/no-dynamic-require: off */
-/* globals Module, Util */
 import _ from 'lodash';
-import path from 'path';
 import Promise from 'bluebird';
-import utilities from './lib/utilities';
+import router from './router';
+import Koa from './services/koa';
+import RabbitMQ from './services/rabbitmq';
 
-global.Util = utilities;
-global.Adapter = {};
-global.Module = {};
+export default class {
+  constructor(opts) {
+    const {
+      routes,
+      middlewares,
+      bootloaders,
+      resources,
+      policies,
+      services,
+    } = opts;
 
-export default {
-  async start() {
-    this.config = {};
+    this.routes = routes || [];
+    this.bootloaders = bootloaders || [];
+    this.services = services || [];
+    this.middlewares = middlewares || {};
+    this.resources = resources || {};
+    this.policies = policies || {};
 
-    /* require all the config files */
-    _.each(['adapters', 'routes', 'middlewares', 'bootloaders', 'services'], (config) => {
-      this.config[config] = require(path.join(process.cwd(), `config/${config}`)).default;
-    });
+    this.koa = null;
+    this.rabbitmq = null;
+  }
+
+  async start(opts) {
+    const { koa = {}, rabbitmq = {} } = opts || {};
 
     /* load bootloaders */
-    await Promise.all(_.map(this.config.bootloaders, async bootloader => bootloader()));
+    await Promise.all(_.map(this.bootloaders, async bootloader => bootloader()));
 
-    /* load policies and resources to the global object */
-    Util.require('policies', 'Policies');
-    Util.require('resources', 'Resources');
+    /* setup routes */
+    const routed = router(this.routes, this.resources, this.policies);
 
-    /* require router after global __dirname is set */
-    const router = require('./lib/router').default;
-    const routed = router(this.config.routes, global.Resources, global.Policies);
+    if (routed.filter(route => route.type === 'http').length !== 0) {
+      this.koa = new Koa({
+        host: koa.host,
+        port: koa.port,
+      });
+      this.koa.middlewares = this.middlewares.http || [];
+      this.koa.routes = routed.filter((route) => {
+        const service = (route.service) ?
+          _.includes(this.services, route.service) : true;
+        return (route.type === 'http') && service;
+      });
+      this.koa.start();
+    }
 
-    /* start adapters */
-    await Promise.all(_.map(this.config.adapters, async (adapter) => {
-      Module[adapter] = require(`./adapters/${adapter}`).default;
-
-      if (adapter === 'koa') {
-        Module[adapter].middlewares = this.config.middlewares.http;
-        Module[adapter].routes = routed.filter((route) => {
-          const service = (route.service) ? _.includes(this.config.services, route.service) : true;
-
-          return (route.type === 'http') && service;
-        });
-      } else if (adapter === 'rabbitmq') {
-        Module[adapter].middlewares = this.config.middlewares.amqp;
-        Module[adapter].routes = routed.filter(route => route.type === 'amqp');
-      }
-
-      await Module[adapter].start();
-    }));
-
-    console.log('server started...');
-  },
+    if (routed.filter(route => route.type === 'amqp').length !== 0) {
+      this.rabbitmq = new RabbitMQ({
+        host: rabbitmq.host,
+        vhost: rabbitmq.vhost,
+        port: rabbitmq.port,
+        username: rabbitmq.username,
+        password: rabbitmq.password,
+      });
+      this.rabbitmq.middlewares = this.middlewares.amqp || [];
+      this.rabbitmq.routes = routed.filter(route => route.type === 'amqp');
+      this.rabbitmq.start();
+    }
+  }
 
   async stop() {
-    await Promise.all(_.map(this.adapters, async (adapter) => {
-      await Module[adapter].stop();
-    }));
-  },
-};
+    if (!this.koa) this.koa.stop();
+    if (!this.rabbitmq) this.rabbitmq.stop();
+  }
+}
