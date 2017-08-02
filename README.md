@@ -11,7 +11,6 @@ import bootloaders from './config/bootloaders';
 import middlewares from './config/middlewares';
 import routes from './config/routes';
 
-/* constructor */
 const krill = new Krill({
   bootloaders,
   middlewares,
@@ -19,14 +18,6 @@ const krill = new Krill({
   resources: load('resources'),
   policies: load('policies'),
 });
-
-/* function chain */
-const krill = new Krill()
-  .bootloaders(bootloaders)
-  .middlewares(middlewares)
-  .routes(routes)
-  .resources(load('resources'))
-  .policies(load('policies'));
 
 /* to start krill using the default config */
 krill.start();
