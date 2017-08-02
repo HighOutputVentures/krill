@@ -1,5 +1,5 @@
 import test from 'ava';
-import mailer from '../../src/tools/mailer';
+import mailer from '../../../src/tools/mailer';
 
 test.skip('Given valid email request', (t) => {
   mailer([{

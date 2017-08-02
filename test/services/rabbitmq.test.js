@@ -1,8 +1,8 @@
 import test from 'ava';
 import _ from 'lodash';
 import uuid from 'uuid';
-import request from '../src/tools/rabbitmq';
-import RabbitMQ from '../src/services/rabbitmq';
+import request from '../../src/tools/rabbitmq';
+import RabbitMQ from '../../src/services/rabbitmq';
 
 const amqp = new RabbitMQ();
 
