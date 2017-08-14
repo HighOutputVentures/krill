@@ -64,7 +64,7 @@ export default class {
   }
 
   async stop() {
-    if (!this.koa) this.koa.stop();
-    if (!this.rabbitmq) this.rabbitmq.stop();
+    if (this.koa) this.koa.stop();
+    if (this.rabbitmq) this.rabbitmq.stop();
   }
 }
