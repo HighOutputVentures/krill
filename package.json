@@ -37,12 +37,8 @@
     "koa-router": "^7.0.1",
     "lodash": "^4.17.4",
     "mailgun-js": "^0.11.2",
-    "mongoose": "^4.9.9",
-    "mqsp": "^0.2.3",
-    "redis": "^2.7.1",
     "request": "^2.81.0",
     "request-promise": "^4.2.1",
-    "sendgrid": "^5.1.1",
     "uuid": "^3.0.1"
   },
   "devDependencies": {
