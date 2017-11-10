@@ -12,12 +12,10 @@ export default class {
       bootloaders,
       resources,
       policies,
-      services,
     } = opts;
 
     this.routes = routes || [];
     this.bootloaders = bootloaders || [];
-    this.services = services || [];
     this.middlewares = middlewares || {};
     this.resources = resources || {};
     this.policies = policies || {};
@@ -41,11 +39,7 @@ export default class {
         port: koa.port,
       });
       this.koa.middlewares = this.middlewares.http || [];
-      this.koa.routes = routed.filter((route) => {
-        const service = (route.service) ?
-          _.includes(this.services, route.service) : true;
-        return (route.type === 'http') && service;
-      });
+      this.koa.routes = routed.filter(route => route.type === 'http');
       this.koa.start();
     }
 
