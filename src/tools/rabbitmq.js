@@ -2,8 +2,16 @@
 import Arque from 'arque';
 import debug from 'debug';
 
+const {
+  RABBIT_HOST = 'localhost',
+  RABBIT_VHOST = '',
+  RABBIT_USER = 'guest',
+  RABBIT_PASSWORD = 'guest',
+  RABBIT_PORT = '5672',
+} = process.env;
+
 if (!global.krill) global.krill = {};
-if (!global.krill.arque) global.krill.arque = new Arque('');
+if (!global.krill.arque) global.krill.arque = new Arque(`amqp://${RABBIT_USER}:${RABBIT_PASSWORD}@${RABBIT_HOST}:${RABBIT_PORT}/${RABBIT_VHOST}`);
 if (!global.krill.clients) global.krill.clients = {};
 
 const logger = debug('rabbitmq');
