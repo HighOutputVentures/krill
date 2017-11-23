@@ -16,14 +16,12 @@ export default function (emails, prefetch, delay, callback) {
 
   queue.on('dispatch', (data) => {
     forEach(data.dispatched, (email) => {
-      logger(`dispatching ${JSON.stringify(email)}`);
-      mailer.messages().send(email, (err, body) => {
+      logger(`dispatching email subject ${email.subject} to ${email.to} from ${email.from}`);
+      mailer.messages().send(email, (err) => {
         if (err) {
           logger(`status: ${err.statusCode}, message: ${err.message}`);
           error.push(err);
         }
-
-        logger(body);
       });
     });
   });
