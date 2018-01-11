@@ -4,12 +4,7 @@
   "description": "microservice framework",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -rf dist/",
-    "build": "npm run clean && babel --out-dir . src/",
-    "lint": "eslint .",
-    "test": "ava",
-    "test-coverage": "nyc ava",
-    "install": "babel --out-dir . src/"
+    "test": "xo && nyc ava"
   },
   "repository": {
     "type": "git",
@@ -27,7 +22,6 @@
   "dependencies": {
     "ajv": "^4.11.3",
     "arque": "^0.3.3",
-    "babel-polyfill": "^6.23.0",
     "bluebird": "^3.4.7",
     "debug": "^2.6.1",
     "koa": "^2.2.0",
@@ -43,36 +37,27 @@
   },
   "devDependencies": {
     "ava": "^0.19.1",
-    "babel-cli": "^6.23.0",
-    "babel-core": "^6.23.1",
-    "babel-eslint": "^7.2.2",
-    "babel-plugin-transform-builtin-extend": "^1.1.2",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
-    "babel-preset-env": "^1.1.8",
     "cz-conventional-changelog": "^1.2.0",
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb-base": "^11.2.0",
-    "eslint-plugin-babel": "^4.0.1",
-    "eslint-plugin-import": "^2.7.0",
     "gulp": "^3.9.1",
     "gulp-shell": "^0.6.3",
     "nyc": "^11.0.3",
-    "supertest": "^3.0.0"
+    "supertest": "^3.0.0",
+    "xo": "^0.18.2"
   },
   "ava": {
     "files": [
       "test/**/*.test.js"
     ],
     "source": [
-      "src/**/*.js"
+      "**/*.js",
+      "!test/**"
     ],
     "timeout": "50s",
     "failFast": true,
-    "failWithoutAssertions": true,
-    "require": [
-      "babel-register"
-    ],
-    "babel": "inherit"
+    "failWithoutAssertions": true
+  },
+  "xo": {
+    "space": true
   },
   "config": {
     "commitizen": {

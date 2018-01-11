@@ -1,17 +1,17 @@
-import _ from 'lodash';
-import Promise from 'bluebird';
-import router from './router';
-import Koa from './services/koa';
-import RabbitMQ from './services/rabbitmq';
+const _ = require('lodash');
+const Promise = require('bluebird');
+const router = require('./router');
+const Koa = require('./services/koa');
+const RabbitMQ = require('./services/rabbitmq');
 
-export default class {
+module.exports = class {
   constructor(opts) {
     const {
       routes,
       middlewares,
       bootloaders,
       resources,
-      policies,
+      policies
     } = opts;
 
     this.routes = routes || [];
@@ -25,18 +25,18 @@ export default class {
   }
 
   async start(opts) {
-    const { koa = {}, rabbitmq = {} } = opts || {};
+    const {koa = {}, rabbitmq = {}} = opts || {};
 
-    /* load bootloaders */
+    /* Load bootloaders */
     await Promise.all(_.map(this.bootloaders, async bootloader => bootloader()));
 
-    /* setup routes */
+    /* Setup routes */
     const routed = router(this.routes, this.resources, this.policies);
 
     if (routed.filter(route => route.type === 'http').length !== 0) {
       this.koa = new Koa({
         host: koa.host,
-        port: koa.port,
+        port: koa.port
       });
       this.koa.middlewares = this.middlewares.http || [];
       this.koa.routes = routed.filter(route => route.type === 'http');
@@ -49,7 +49,7 @@ export default class {
         vhost: rabbitmq.vhost,
         port: rabbitmq.port,
         username: rabbitmq.username,
-        password: rabbitmq.password,
+        password: rabbitmq.password
       });
       this.rabbitmq.middlewares = this.middlewares.amqp || [];
       this.rabbitmq.routes = routed.filter(route => route.type === 'amqp');
@@ -58,7 +58,11 @@ export default class {
   }
 
   async stop() {
-    if (this.koa) this.koa.stop();
-    if (this.rabbitmq) this.rabbitmq.stop();
+    if (this.koa) {
+      this.koa.stop();
+    }
+    if (this.rabbitmq) {
+      this.rabbitmq.stop();
+    }
   }
-}
+};

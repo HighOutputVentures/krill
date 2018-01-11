@@ -1,10 +1,14 @@
-export default function compose(middlewares) {
-  if (!Array.isArray(middlewares)) throw new TypeError('Middleware stack must be an array');
+module.exports = function (middlewares) {
+  if (!Array.isArray(middlewares)) {
+    throw new TypeError('Middleware stack must be an array');
+  }
 
   return (ctx, next) => {
     function execute(index) {
       const fn = (index === middlewares.length) ? next : middlewares[index];
-      if (!fn) return Promise.resolve();
+      if (!fn) {
+        return Promise.resolve();
+      }
 
       try {
         return Promise.resolve(fn(ctx, () => execute(index + 1)));
@@ -15,4 +19,4 @@ export default function compose(middlewares) {
 
     return execute(0);
   };
-}
+};

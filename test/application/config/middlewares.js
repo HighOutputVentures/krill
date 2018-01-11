@@ -1,10 +1,8 @@
-import debug from 'debug';
-import delay from '../delay';
+const debug = require('debug')('rabbitmq');
+const delay = require('../delay');
 
-const logger = debug('rabbitmq');
-
-export default {
-  /* http middlewares */
+module.exports = {
+  /* Http middlewares */
   http: [
     async (ctx, next) => {
       await next();
@@ -33,15 +31,15 @@ export default {
       const time = 500 * Math.random();
       await delay(time);
       await next();
-    },
+    }
   ],
 
-  /* amqp middlewares */
+  /* Amqp middlewares */
   amqp: [
     async (ctx, next) => {
       const start = Date.now();
       await next();
-      logger(`route: ${ctx.route}, benchmark: ${Date.now() - start}ms`);
+      debug(`route: ${ctx.route}, benchmark: ${Date.now() - start}ms`);
     },
     async (ctx, next) => {
       const time = 500 * Math.random();
@@ -67,6 +65,6 @@ export default {
       const time = 500 * Math.random();
       await delay(time);
       await next();
-    },
-  ],
+    }
+  ]
 };

@@ -1,6 +1,6 @@
-import delay from '../delay';
+const delay = require('../delay');
 
-export default [
+module.exports = [
   async () => {
     const time = 500 * Math.random();
     await delay(time);
@@ -12,5 +12,5 @@ export default [
   async () => {
     const time = 1000 * Math.random();
     await delay(time);
-  },
+  }
 ];
