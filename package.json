@@ -18,7 +18,7 @@
   "bugs": {
     "url": "https://github.com/kugtong33/krill/issues"
   },
-  "homepage": "https://github.com/kugtong33/krill#krilljs",
+  "homepage": "https://github.com/HighOutputVentures/krill#krilljs",
   "dependencies": {
     "ajv": "^4.11.3",
     "arque": "^0.3.3",
