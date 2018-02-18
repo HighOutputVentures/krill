@@ -1,8 +1,6 @@
 const _ = require('lodash');
 const each = require('lodash/each');
 const get = require('lodash/get');
-const Ajv = require('ajv');
-const loadSchema = require('../utilities').loadSchema;
 
 /*
  * TODO: routing mechanism components 
@@ -10,7 +8,6 @@ const loadSchema = require('../utilities').loadSchema;
  * 2. route resolver, which maps the stack with the http api 
  * 3. router, loads mapped routes according to route type
  */
-
 
 class RouteStack {
   constructor(options) {
@@ -44,10 +41,7 @@ class RouteStack {
 }
 
 module.exports = function (routes, resources, policies) {
-  const ajv = new Ajv();
-  loadSchema(ajv, 'schema');
-
-  return _.reduce(routes, (reduced, {type, service, api, resource, policy = [], schema}) => {
+  return _.reduce(routes, (reduced, {type, service, api, resource, policy = []}) => {
     const stack = [];
     const resourceObject = _.get(resources, resource);
 

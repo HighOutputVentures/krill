@@ -4,6 +4,7 @@ const Router = require('koa-router');
 const compose = require('koa-compose');
 const parser = require('koa-bodyparser');
 const logger = require('koa-logger');
+const router = require('./router');
 
 const app = new Koa();
 const router = new Router();
@@ -13,13 +14,22 @@ module.exports = class {
     const {host = '127.0.0.1', port = '8080'} = opts || {};
 
     this.server = null;
+    this.bootloaders = [];
     this.middlewares = [];
     this.routes = [];
     this.host = host;
     this.port = port;
   }
 
+  // TODO: abstract bootloaders, routes, policies and middlewares to
+  // make it reusable on both http and amqp
   async start() {
+    /* Load bootloaders */
+    await Promise.all(_.map(this.bootloaders, async bootloader => bootloader()));
+
+    /* Setup routes */
+    this.routes = router(this.routes, this.resources, this.policies);
+
     /* Load koa modules */
     app.use(logger());
     app.use(parser({extendTypes: {json: ['application/vnd.api+json']}}));
