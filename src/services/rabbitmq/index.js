@@ -34,7 +34,7 @@ export default class {
 
     const worker = await this.arque.createWorker(
       { job: name, concurrency: 500 },
-      async ({ body }) => {
+      async ({ body = {} }) => {
         try {
           const ctx = { request: {}, response: {} };
           ctx.route = name;
