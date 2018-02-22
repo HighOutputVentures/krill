@@ -20,6 +20,8 @@ test.before(async () => {
   });
 });
 
+test.after(async () => { await amqp.stop(); });
+
 test('rabbitmq, given single worker with single message', async t => {
   const message = {hello: 'world'};
 
@@ -82,8 +84,4 @@ test('rabbitmq, given a timeout request', async t => {
   const error = await t.throws(request('sample.worker5', {hello: 'world'}));
 
   t.is(error.message, 'Job timeout.');
-});
-
-test.after(async () => {
-  await amqp.stop();
 });

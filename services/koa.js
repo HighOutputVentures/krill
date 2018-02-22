@@ -17,6 +17,8 @@ module.exports = class {
     this.bootloaders = [];
     this.middlewares = [];
     this.routes = [];
+    this.resources = {};
+    this.policies = {};
     this.host = host;
     this.port = port;
   }
