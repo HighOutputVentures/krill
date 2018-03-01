@@ -1,12 +1,2 @@
-.idea/
 node_modules/
-/adapters
-/core
-/lib
-/router
-/services
-/tools
-/index.js
-/utilities.js
-*.log
-**/dist/
+.nyc_output/
