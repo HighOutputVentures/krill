@@ -2,7 +2,7 @@ const map = require('lodash/map');
 const Promise = require('bluebird');
 const router = require('./router');
 const Koa = require('./services/koa');
-const RabbitMQ = require('./services/rabbitmq');
+const Arque = require('./services/arque');
 
 module.exports = class {
   constructor(opts) {
@@ -37,7 +37,7 @@ module.exports = class {
 
       this.koa = this._koa.app;
     } else if (this.service === 'arque') {
-      this._arque = new RabbitMQ({
+      this._arque = new Arque({
         host: env.host || '127.0.0.1',
         vhost: env.vhost || '/',
         port: env.port || '5672',
@@ -68,10 +68,10 @@ module.exports = class {
 
   async stop() {
     if (this.koa) {
-      await this.koa.stop();
+      await this._koa.stop();
     }
-    if (this.rabbitmq) {
-      await this.arque.stop();
+    if (this.Arque) {
+      await this._arque.stop();
     }
   }
 };
