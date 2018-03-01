@@ -1,4 +1,4 @@
-const _ = require('lodash');
+const map = require('lodash/map');
 const Promise = require('bluebird');
 const router = require('./router');
 const Koa = require('./services/koa');
@@ -7,62 +7,71 @@ const RabbitMQ = require('./services/rabbitmq');
 module.exports = class {
   constructor(opts) {
     const {
+      service,
       routes,
       middlewares,
       bootloaders,
       resources,
-      policies
+      policies,
+      env
     } = opts;
 
+    this._koa = null;
+    this._arque = null;
+
+    this.service = service;
     this.routes = routes || [];
     this.bootloaders = bootloaders || [];
     this.middlewares = middlewares || {};
     this.resources = resources || {};
     this.policies = policies || {};
 
-    this.koa = null;
-    this.rabbitmq = null;
+    if (this.service === 'koa') {
+      this._koa = new Koa({
+        host: env.host || '127.0.0.1',
+        port: env.port || '8080'
+      });
+
+      this._koa.middlewares = this.middlewares || [];
+      this._koa.routes = router(this.routes, this.resources, this.policies);
+
+      this.koa = this._koa.app;
+    } else if (this.service === 'arque') {
+      this._arque = new RabbitMQ({
+        host: env.host || '127.0.0.1',
+        vhost: env.vhost || '/',
+        port: env.port || '5672',
+        username: env.username || 'guest',
+        password: env.password || 'guest'
+      });
+      this._arque.middlewares = this.middlewares || [];
+      this._arque.routes = router(this.routes, this.resources, this.policies);
+
+      this.arque = this._arque.app;
+    } else {
+      throw new Error(`Service ${this.service} not supported`);
+    }
   }
 
-  async start(opts) {
-    const {koa = {}, rabbitmq = {}} = opts || {};
-
+  async start() {
     /* Load bootloaders */
-    await Promise.all(_.map(this.bootloaders, async bootloader => bootloader()));
+    await Promise.all(map(this.bootloaders, async bootloader => bootloader()));
 
-    /* Setup routes */
-    const routed = router(this.routes, this.resources, this.policies);
-
-    if (routed.filter(route => route.type === 'http').length !== 0) {
-      this.koa = new Koa({
-        host: koa.host,
-        port: koa.port
-      });
-      this.koa.middlewares = this.middlewares.http || [];
-      this.koa.routes = routed.filter(route => route.type === 'http');
-      this.koa.start();
-    }
-
-    if (routed.filter(route => route.type === 'amqp').length !== 0) {
-      this.rabbitmq = new RabbitMQ({
-        host: rabbitmq.host,
-        vhost: rabbitmq.vhost,
-        port: rabbitmq.port,
-        username: rabbitmq.username,
-        password: rabbitmq.password
-      });
-      this.rabbitmq.middlewares = this.middlewares.amqp || [];
-      this.rabbitmq.routes = routed.filter(route => route.type === 'amqp');
-      this.rabbitmq.start();
+    if (this.service === 'koa') {
+      await this._koa.start();
+    } else if (this.service === 'arque') {
+      await this._arque.start();
+    } else {
+      throw new Error(`Service ${this.service} not supported`);
     }
   }
 
   async stop() {
     if (this.koa) {
-      this.koa.stop();
+      await this.koa.stop();
     }
     if (this.rabbitmq) {
-      this.rabbitmq.stop();
+      await this.arque.stop();
     }
   }
 };

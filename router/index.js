@@ -1,20 +1,18 @@
-const _ = require('lodash');
 const each = require('lodash/each');
 const get = require('lodash/get');
+const reduce = require('lodash/reduce');
 
 module.exports = function (routes, resources, policies) {
-  return _.reduce(routes, (reduced, {type, service, api, resource, policy = []}) => {
+  return reduce(routes, (reduced, {api, resource, policy = []}) => {
     const stack = [];
-    const resourceObject = _.get(resources, resource);
+    const resourceObject = get(resources, resource);
 
     if (!resourceObject) {
-      const error = new Error(`${resource} resource not found`);
-      error.name = 'RouterError';
-      throw error;
+      throw new Error(`${resource} resource not found`);
     }
 
     /* Stack policies */
-    _.each(policy, name => {
+    each(policy, name => {
       if (!policies[name]) {
         throw new Error('Policy not found');
       }
@@ -23,7 +21,7 @@ module.exports = function (routes, resources, policies) {
 
     /* Stack resource object */
     stack.push(resourceObject);
-    reduced.push({type, service, api, stack});
+    reduced.push({api, stack});
 
     return reduced;
   }, []);

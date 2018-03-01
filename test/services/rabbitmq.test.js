@@ -20,7 +20,9 @@ test.before(async () => {
   });
 });
 
-test.after(async () => { await amqp.stop(); });
+test.after(async () => {
+  await amqp.stop();
+});
 
 test('rabbitmq, given single worker with single message', async t => {
   const message = {hello: 'world'};
