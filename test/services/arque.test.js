@@ -1,10 +1,9 @@
 import test from 'ava';
 import _ from 'lodash';
-import uuid from 'uuid';
 import request from '../../tools/arque';
-import RabbitMQ from '../../services/arque';
+import Arque from '../../services/arque';
 
-const amqp = new RabbitMQ();
+const amqp = new Arque();
 
 async function delay(time) {
   return new Promise(resolve => {
@@ -76,7 +75,7 @@ test('rabbitmq, given multiple worker with multiple messages', async t => {
     })),
   );
 
-  const result = await Promise.all(_.times(5, async () => request('sample.worker4', Object.assign({}, {id: uuid.v4()}, message))));
+  const result = await Promise.all(_.times(5, async () => request('sample.worker4', message)));
 
   t.is(responses.length, 5);
   t.is(result.length, 5);
@@ -85,5 +84,5 @@ test('rabbitmq, given multiple worker with multiple messages', async t => {
 test('rabbitmq, given a timeout request', async t => {
   const error = await t.throws(request('sample.worker5', {hello: 'world'}));
 
-  t.is(error.message, 'Job timeout.');
+  t.is(error.message, 'Request timeout.');
 });

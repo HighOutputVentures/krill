@@ -1,5 +1,4 @@
 const map = require('lodash/map');
-const Promise = require('bluebird');
 const router = require('./router');
 const Koa = require('./services/koa');
 const Arque = require('./services/arque');

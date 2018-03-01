@@ -1,4 +1,3 @@
-const Promise = require('bluebird');
 const map = require('lodash/map');
 const debug = require('debug')('rabbitmq');
 const Arque = require('arque').default;
