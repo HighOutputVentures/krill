@@ -4,6 +4,7 @@
   "description": "microservice framework",
   "main": "index.js",
   "scripts": {
+    "lint": "xo",
     "test": "xo && nyc ava"
   },
   "repository": {
@@ -50,7 +51,8 @@
     ],
     "source": [
       "**/*.js",
-      "!test/**"
+      "!test/**",
+      "!node_modules/**"
     ],
     "timeout": "50s",
     "failFast": true,
